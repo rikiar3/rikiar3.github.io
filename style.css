@@ -84,6 +84,20 @@ p {
   text-align: justify;
 }
 
+.About-border {
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+}
+
+.Our-Border {
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+}
+
+.contact-me {
+  box-shadow: 0 3px 20px rgba(0, 0, 0, 0.5);
+  border-radius: 12px;
+}
 /* =================Versi Dekstop================ */
 @media (min-width: 992px) {
   .nav-link {
@@ -133,6 +147,11 @@ p {
 
   p {
     text-align: justify;
+  }
+
+  .About-border {
+    box-shadow: 0 3px 20px rgba(0, 0, 0, 0.5);
+    border-radius: 12px;
   }
 }
 
