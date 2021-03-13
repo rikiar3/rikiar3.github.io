@@ -157,4 +157,7 @@ p {
 
 /* ================Mobile Version========= */
 @media (min-width: 576px) {
+  /* .hp {
+    margin-left: -90px;
+  } */
 }
