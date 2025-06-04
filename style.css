@@ -8,6 +8,8 @@
   font-size: 32px;
 }
 
+
+
 /* jumbotron */
 
 .jumbotron {
@@ -154,6 +156,7 @@ p {
     border-radius: 12px;
   }
 }
+
 
 /* ================Mobile Version========= */
 @media (min-width: 576px) {
