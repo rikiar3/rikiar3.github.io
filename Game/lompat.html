@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hindari Balok!</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: #f0f0f0;
+      overflow: hidden;
+    }
+
+    #game {
+      position: relative;
+      width: 100vw;
+      height: 300px;
+      background: linear-gradient(#87ceeb, #fff);
+      border-bottom: 5px solid #444;
+      overflow: hidden;
+    }
+
+    #player {
+      position: absolute;
+      bottom: 0;
+      left: 50px;
+      width: 50px;
+      height: 50px;
+      background: red;
+      border-radius: 10px;
+      animation: bounce 0.3s infinite alternate;
+    }
+
+    @keyframes bounce {
+      from { transform: translateY(0); }
+      to { transform: translateY(-5px); }
+    }
+
+    .jumping {
+      animation: none !important;
+      background: orange;
+    }
+
+    .obstacle {
+      position: absolute;
+      bottom: 0;
+      width: 30px;
+      height: 50px;
+      background: green;
+      animation: moveObstacle linear forwards;
+    }
+
+    @keyframes moveObstacle {
+      from { right: -30px; }
+      to { right: 100vw; }
+    }
+
+    #scoreboard {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+    }
+
+    #controls {
+      margin-top: 20px;
+      text-align: center;
+    }
+
+    .btn-back {
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+
+  <div id="game">
+    <div id="player"></div>
+  </div>
+
+  <div id="scoreboard">
+    Skor: <span id="score">0</span> | Skor Tertinggi: <span id="highscore">0</span>
+  </div>
+
+  <div id="controls" class="d-flex flex-column align-items-center">
+    <div class="mb-2">
+      <button class="btn btn-success me-2" onclick="startGame()">▶️ Mulai</button>
+      <button class="btn btn-warning" onclick="jump()">⬆️ Lompat</button>
+    </div>
+    <a class="btn btn-outline-primary btn-back" href="../aplikasi.html">
+      <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
+  </div>
+
+  <!-- Suara -->
+  <audio id="jumpSound" src="https://www.soundjay.com/button/sounds/button-16.mp3"></audio>
+  <audio id="hitSound" src="https://www.soundjay.com/button/sounds/button-10.mp3"></audio>
+
+  <script>
+    const player = document.getElementById("player");
+    const game = document.getElementById("game");
+    const scoreDisplay = document.getElementById("score");
+    const highscoreDisplay = document.getElementById("highscore");
+    const jumpSound = document.getElementById("jumpSound");
+    const hitSound = document.getElementById("hitSound");
+
+    let isJumping = false;
+    let gameInterval;
+    let obstacleInterval;
+    let scoreInterval;
+    let speed = 2000;
+    let score = 0;
+    let highscore = localStorage.getItem("highscore") || 0;
+    highscoreDisplay.textContent = highscore;
+
+    function jump() {
+      if (isJumping) return;
+      isJumping = true;
+      jumpSound.play();
+      player.classList.add("jumping");
+      player.style.transition = "bottom 0.3s";
+      player.style.bottom = "100px";
+      setTimeout(() => {
+        player.style.bottom = "0px";
+        setTimeout(() => {
+          isJumping = false;
+          player.classList.remove("jumping");
+        }, 300);
+      }, 300);
+    }
+
+    function createObstacle() {
+      const obstacle = document.createElement("div");
+      obstacle.classList.add("obstacle");
+      obstacle.style.right = "-30px";
+      obstacle.style.animationDuration = speed / 1000 + "s";
+      game.appendChild(obstacle);
+
+      const move = setInterval(() => {
+        const obstacleRect = obstacle.getBoundingClientRect();
+        const playerRect = player.getBoundingClientRect();
+
+        if (
+          obstacleRect.left < playerRect.right &&
+          obstacleRect.right > playerRect.left &&
+          obstacleRect.bottom > playerRect.top &&
+          obstacleRect.top < playerRect.bottom
+        ) {
+          hitSound.play();
+          alert("💥 Game Over!\nSkor: " + score);
+          clearInterval(gameInterval);
+          clearInterval(obstacleInterval);
+          clearInterval(scoreInterval);
+          if (score > highscore) {
+            localStorage.setItem("highscore", score);
+          }
+          location.reload();
+        }
+
+        if (obstacleRect.right < 0) {
+          obstacle.remove();
+          clearInterval(move);
+        }
+      }, 10);
+    }
+
+    function startGame() {
+      score = 0;
+      speed = 2000;
+      scoreDisplay.textContent = score;
+
+      gameInterval = setInterval(() => {
+        speed *= 0.97;
+        createObstacle();
+      }, speed);
+
+      obstacleInterval = setInterval(() => {
+        createObstacle();
+      }, speed);
+
+      scoreInterval = setInterval(() => {
+        score++;
+        scoreDisplay.textContent = score;
+        if (score > highscore) {
+          highscoreDisplay.textContent = score;
+        }
+      }, 500);
+    }
+
+    document.addEventListener("keydown", function(e) {
+      if (e.code === "Space" || e.code === "Enter") {
+        e.preventDefault();
+        jump();
+      }
+    });
+  </script>
+
+  <!-- Bootstrap JS (optional if needed) -->
+  <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
