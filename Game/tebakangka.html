@@ -1,81 +1,98 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-     <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <!-- Bootstrap CSS -->
-    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
-
-    <!-- my fons  -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-    <!-- my CSS -->
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- font fontawesome -->
-    <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tebak Angka!</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
+      font-family: 'Roboto', sans-serif;
       background: #fefae0;
-      text-align: center;
-      padding: 30px;
+      padding-top: 40px;
     }
 
     h1 {
       color: #333;
+      margin-bottom: 20px;
     }
 
-    input[type="number"] {
-      padding: 10px;
-      font-size: 1em;
-      width: 100px;
-    }
-
-    button {
-      padding: 10px 20px;
-      font-size: 1em;
-      margin-left: 10px;
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    button:hover {
-      background-color: #0b7dda;
+    .game-box {
+      background: #fff;
+      border-radius: 10px;
+      padding: 30px;
+      max-width: 400px;
+      margin: auto;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     }
 
     #message {
       margin-top: 20px;
-      font-size: 1.2em;
+      font-size: 1.2rem;
     }
 
     #attempts {
       margin-top: 10px;
       color: #555;
     }
+
+    .btn-guess {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .btn-guess:hover {
+      background-color: #0b7dda;
+    }
+
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+    }
   </style>
 </head>
+
 <body>
-    <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
-  <h1>🎲 Tebak Angka 1 - 100</h1>
-  <p>Masukkan tebakanmu:</p>
-  <input type="number" id="guess" min="1" max="100" />
-  <button onclick="checkGuess()">Tebak</button>
-  <div id="message"></div>
-  <div id="attempts"></div>
+  <a class="btn btn-outline-primary btn-back" href="../aplikasi.html">
+    <i class="fas fa-arrow-left me-2"></i>Kembali
+  </a>
+
+  <div class="container text-center">
+    <h1>🎲 Tebak Angka 1 - 100</h1>
+
+    <div class="game-box mt-4">
+      <p>Masukkan tebakanmu:</p>
+      <div class="input-group justify-content-center mb-3">
+        <input type="number" id="guess" class="form-control w-50" min="1" max="100" />
+        <button id="guess-btn" class="btn btn-guess ms-2">Tebak</button>
+      </div>
+      <div id="message" class="fw-bold"></div>
+      <div id="attempts"></div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
 
   <script>
     let target = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
+
+    document.getElementById('guess-btn').addEventListener('click', checkGuess);
 
     function checkGuess() {
       const guess = parseInt(document.getElementById('guess').value);
@@ -84,20 +101,25 @@
 
       if (isNaN(guess) || guess < 1 || guess > 100) {
         message.textContent = "⚠️ Masukkan angka antara 1 dan 100!";
+        message.style.color = "#d9534f";
         return;
       }
 
       attempts++;
       if (guess === target) {
         message.textContent = `🎉 Benar! Angkanya adalah ${target}.`;
+        message.style.color = "#28a745";
         attemptsDisplay.textContent = `Jumlah percobaan: ${attempts}`;
-        document.querySelector('button').disabled = true;
+        document.getElementById('guess-btn').disabled = true;
       } else if (guess < target) {
         message.textContent = "📉 Terlalu rendah!";
+        message.style.color = "#ffc107";
       } else {
         message.textContent = "📈 Terlalu tinggi!";
+        message.style.color = "#ffc107";
       }
     }
   </script>
 </body>
+
 </html>

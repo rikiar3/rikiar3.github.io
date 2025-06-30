@@ -1,39 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-     <!-- Required meta tags -->
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <!-- Bootstrap CSS -->
-    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
-
-    <!-- my fons  -->
-    <link rel="preconnect" href="https://fonts.gstatic.com" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-    <!-- my CSS -->
-    <link rel="stylesheet" href="style.css" />
-
-    <!-- font fontawesome -->
-    <link href="fontawesome/css/all.min.css" rel="stylesheet" />
   <title>Catch the Box!</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+
   <style>
     body {
-      font-family: 'Segoe UI', sans-serif;
-      text-align: center;
+      font-family: 'Roboto', sans-serif;
       background: #f0f8ff;
-      margin: 0;
-      padding: 20px;
+      padding-top: 40px;
+    }
+
+    h1 {
+      margin-bottom: 30px;
     }
 
     #game-container {
       position: relative;
       width: 300px;
       height: 300px;
-      margin: 20px auto;
+      margin: 0 auto 20px;
       background: #e0e0e0;
       border: 2px solid #333;
       border-radius: 10px;
@@ -50,37 +51,44 @@
       display: none;
     }
 
-    #info {
-      font-size: 1.2em;
-      margin: 10px;
+    #info p {
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
     }
 
     #start-btn {
+      font-size: 1rem;
       padding: 10px 20px;
-      font-size: 1em;
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
-      cursor: pointer;
     }
 
-    #start-btn:hover {
-      background: #0056b3;
+    .btn-back {
+      margin-top: 20px;
     }
   </style>
 </head>
+
 <body>
-  <h1>🎯 Catch the Box!</h1>
-  <div id="game-container">
-    <div id="box"></div>
+  <div class="container text-center">
+    <h1>🎯 Catch the Box!</h1>
+
+    <div id="game-container">
+      <div id="box"></div>
+    </div>
+
+    <div id="info" class="my-3">
+      <p>⏱️ Time: <span id="time">30</span>s</p>
+      <p>🏆 Score: <span id="score">0</span></p>
+    </div>
+
+    <button id="start-btn" class="btn btn-primary mb-3">Start Game</button>
+    <br />
+    <a href="../aplikasi.html" class="btn btn-outline-secondary btn-back">
+      <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
   </div>
-  <div id="info">
-    <p>⏱️ Time: <span id="time">30</span>s</p>
-    <p>🏆 Score: <span id="score">0</span></p>
-  </div>
-  <button id="start-btn">Start Game</button>
-  <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
+
+  <!-- Bootstrap JS -->
+  <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
 
   <script>
     const box = document.getElementById('box');
@@ -141,4 +149,5 @@
     startBtn.addEventListener('click', startGame);
   </script>
 </body>
+
 </html>

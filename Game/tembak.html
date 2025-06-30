@@ -1,16 +1,24 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Block Blast</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+
   <style>
     body {
       margin: 0;
       background: #000;
       color: white;
-      font-family: sans-serif;
+      font-family: 'Roboto', sans-serif;
       text-align: center;
+      padding-top: 30px;
     }
 
     canvas {
@@ -24,67 +32,85 @@
       display: flex;
       justify-content: center;
       gap: 10px;
-      margin-top: 10px;
       flex-wrap: wrap;
+      margin-top: 20px;
     }
 
-    .btn {
-      padding: 15px 25px;
-      font-size: 1.2em;
-      background: #007bff;
-      color: white;
-      border: none;
+    .btn-custom {
+      padding: 12px 25px;
+      font-size: 1.1rem;
       border-radius: 8px;
-      cursor: pointer;
+      border: none;
+      color: white;
     }
 
-    .btn:active {
-      background: #0056b3;
+    .btn-start {
+      background-color: #28a745;
     }
 
-    #start-btn {
-      margin-top: 10px;
-      background: #28a745;
+    .btn-start:hover {
+      background-color: #1e7e34;
     }
 
-    #start-btn:active {
-      background: #1e7e34;
+    .btn-control {
+      background-color: #007bff;
+    }
+
+    .btn-control:hover {
+      background-color: #0056b3;
     }
 
     select {
       padding: 10px;
-      font-size: 1em;
-      margin-top: 10px;
+      font-size: 1rem;
       border-radius: 5px;
+      margin-top: 10px;
       border: none;
     }
 
     #score {
-      font-size: 1.2em;
+      font-size: 1.3rem;
       margin-top: 10px;
+    }
+
+    .btn-back {
+      position: absolute;
+      top: 20px;
+      left: 20px;
     }
   </style>
 </head>
+
 <body>
-    <a class="btn btn-primary mt-3" href="../aplikasi.html">Kembali</a>
-  <h1>💥 Tembak</h1>
-  <p id="score">🏆 Skor: 0</p>
-  <canvas id="gameCanvas" width="400" height="500"></canvas>
+  <a class="btn btn-outline-light btn-back" href="../aplikasi.html">
+    <i class="fas fa-arrow-left me-2"></i>Kembali
+  </a>
 
-  <label for="level">🎮 Pilih Level Kecepatan:</label><br/>
-  <select id="level">
-    <option value="1">1 - Lamban 🐢</option>
-    <option value="2" selected>2 - Sedang 🚶</option>
-    <option value="3">3 - Cepat 🏃</option>
-  </select><br/>
+  <div class="container">
+    <h1 class="mb-3">💥 Tembak</h1>
+    <p id="score">🏆 Skor: 0</p>
+    <canvas id="gameCanvas" width="400" height="500"></canvas>
 
-  <button id="start-btn" class="btn" onclick="startGame()">▶️ Mulai</button>
+    <div class="my-3">
+      <label for="level" class="form-label">🎮 Pilih Level Kecepatan:</label><br />
+      <select id="level" class="form-select w-auto d-inline-block">
+        <option value="1">1 - Lamban 🐢</option>
+        <option value="2" selected>2 - Sedang 🚶</option>
+        <option value="3">3 - Cepat 🏃</option>
+      </select>
+    </div>
 
-  <div class="controls">
-    <button class="btn" onclick="moveLeft()">⬅️</button>
-    <button class="btn" onclick="shoot()">🔫 Tembak</button>
-    <button class="btn" onclick="moveRight()">➡️</button>
+    <button id="start-btn" class="btn btn-custom btn-start">▶️ Mulai</button>
+
+    <div class="controls mt-4">
+      <button class="btn btn-custom btn-control" onclick="moveLeft()">⬅️</button>
+      <button class="btn btn-custom btn-control" onclick="shoot()">🔫 Tembak</button>
+      <button class="btn btn-custom btn-control" onclick="moveRight()">➡️</button>
+    </div>
   </div>
+
+  <!-- Bootstrap JS -->
+  <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
 
   <script>
     const canvas = document.getElementById("gameCanvas");
@@ -155,8 +181,8 @@
     }
 
     function updateBlocks() {
-      blocks.forEach(b => b.y += blockSpeed);
       blocks.forEach(b => {
+        b.y += blockSpeed;
         if (b.y + b.size >= canvas.height) {
           gameOver = true;
         }
@@ -224,6 +250,8 @@
       bullets.push({ x: player.x + player.width / 2 - 2, y: player.y });
     }
 
+    document.getElementById("start-btn").addEventListener("click", startGame);
+
     document.addEventListener("keydown", (e) => {
       if (e.key === "ArrowLeft") moveLeft();
       if (e.key === "ArrowRight") moveRight();
@@ -231,4 +259,5 @@
     });
   </script>
 </body>
+
 </html>
