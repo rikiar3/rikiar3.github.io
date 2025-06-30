@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+     <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    
+  <title>Game Ular</title>
+  <style>
+    body {
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 0;
+    }
+
+    canvas {
+      background: #222;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #fff;
+    }
+
+    #score {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+
+    .controls {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .btn {
+      padding: 15px 25px;
+      font-size: 1.2em;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      background: #0056b3;
+    }
+
+    #start-btn {
+      margin-top: 20px;
+      background: #28a745;
+    }
+
+    #start-btn:active {
+      background: #1e7e34;
+    }
+
+    select {
+      padding: 10px;
+      font-size: 1em;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+     <a class="btn btn-primary mt-3" href="../aplikasi.html">Kembali</a>
+  <h1>🐍 Game Ular</h1>
+  <p id="score">🏆 Skor: 0</p>
+  <canvas id="gameCanvas" width="400" height="400"></canvas>
+
+  <label for="speed">🎮 Pilih Level Kecepatan:</label><br/>
+  <select id="speed">
+    <option value="250">1 - Lamban 🐢</option>
+    <option value="150" selected>2 - Sedang 🚶</option>
+    <option value="80">3 - Cepat 🏃</option>
+  </select>
+
+  <button id="start-btn" class="btn" onclick="startGame()">▶️ Mulai</button>
+
+  <div class="controls">
+    <button class="btn" onclick="changeDirection('up')">⬆️</button>
+    <div class="row">
+      <button class="btn" onclick="changeDirection('left')">⬅️</button>
+      <button class="btn" onclick="changeDirection('right')">➡️</button>
+    </div>
+    <button class="btn" onclick="changeDirection('down')">⬇️</button>
+  </div>
+  
+ 
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const box = 20;
+    const canvasSize = 400;
+
+    let snake, direction, food, score, game;
+
+    function spawnFood() {
+      return {
+        x: Math.floor(Math.random() * (canvasSize / box)) * box,
+        y: Math.floor(Math.random() * (canvasSize / box)) * box
+      };
+    }
+
+    function startGame() {
+      snake = [{ x: 200, y: 200 }];
+      direction = "right";
+      food = spawnFood();
+      score = 0;
+      document.getElementById("score").textContent = `🏆 Skor: ${score}`;
+      clearInterval(game);
+      const speed = parseInt(document.getElementById("speed").value);
+      game = setInterval(draw, speed);
+    }
+
+    function draw() {
+      ctx.fillStyle = "#222";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < snake.length; i++) {
+        ctx.fillStyle = i === 0 ? "lime" : "green";
+        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+      }
+
+      ctx.fillStyle = "red";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let head = { ...snake[0] };
+      if (direction === "right") head.x += box;
+      if (direction === "left") head.x -= box;
+      if (direction === "up") head.y -= box;
+      if (direction === "down") head.y += box;
+
+      if (
+        head.x < 0 || head.x >= canvasSize ||
+        head.y < 0 || head.y >= canvasSize ||
+        snake.some(segment => segment.x === head.x && segment.y === head.y)
+      ) {
+        clearInterval(game);
+        alert("💥 Game Over! Skor: " + score);
+        return;
+      }
+
+      snake.unshift(head);
+
+      if (head.x === food.x && head.y === food.y) {
+        score++;
+        document.getElementById("score").textContent = `🏆 Skor: ${score}`;
+        food = spawnFood();
+      } else {
+        snake.pop();
+      }
+    }
+
+    function changeDirection(dir) {
+      if (dir === "left" && direction !== "right") direction = "left";
+      if (dir === "right" && direction !== "left") direction = "right";
+      if (dir === "up" && direction !== "down") direction = "up";
+      if (dir === "down" && direction !== "up") direction = "down";
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") changeDirection("left");
+      if (e.key === "ArrowRight") changeDirection("right");
+      if (e.key === "ArrowUp") changeDirection("up");
+      if (e.key === "ArrowDown") changeDirection("down");
+    });
+  </script>
+</body>
+</html>

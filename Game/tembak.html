@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Block Blast</title>
+  <style>
+    body {
+      margin: 0;
+      background: #000;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    canvas {
+      background: #111;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #fff;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      padding: 15px 25px;
+      font-size: 1.2em;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      background: #0056b3;
+    }
+
+    #start-btn {
+      margin-top: 10px;
+      background: #28a745;
+    }
+
+    #start-btn:active {
+      background: #1e7e34;
+    }
+
+    select {
+      padding: 10px;
+      font-size: 1em;
+      margin-top: 10px;
+      border-radius: 5px;
+      border: none;
+    }
+
+    #score {
+      font-size: 1.2em;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+    <a class="btn btn-primary mt-3" href="../aplikasi.html">Kembali</a>
+  <h1>💥 Tembak</h1>
+  <p id="score">🏆 Skor: 0</p>
+  <canvas id="gameCanvas" width="400" height="500"></canvas>
+
+  <label for="level">🎮 Pilih Level Kecepatan:</label><br/>
+  <select id="level">
+    <option value="1">1 - Lamban 🐢</option>
+    <option value="2" selected>2 - Sedang 🚶</option>
+    <option value="3">3 - Cepat 🏃</option>
+  </select><br/>
+
+  <button id="start-btn" class="btn" onclick="startGame()">▶️ Mulai</button>
+
+  <div class="controls">
+    <button class="btn" onclick="moveLeft()">⬅️</button>
+    <button class="btn" onclick="shoot()">🔫 Tembak</button>
+    <button class="btn" onclick="moveRight()">➡️</button>
+  </div>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = {
+      x: 180,
+      y: 460,
+      width: 40,
+      height: 20,
+      speed: 10
+    };
+
+    let bullets = [];
+    let blocks = [];
+    let score = 0;
+    let gameOver = false;
+    let blockSpeed = 1;
+    let blockInterval;
+    let animationFrame;
+
+    function resetGame() {
+      bullets = [];
+      blocks = [];
+      score = 0;
+      gameOver = false;
+      player.x = 180;
+      document.getElementById("score").textContent = `🏆 Skor: ${score}`;
+    }
+
+    function startGame() {
+      cancelAnimationFrame(animationFrame);
+      clearInterval(blockInterval);
+      resetGame();
+
+      const level = parseInt(document.getElementById("level").value);
+      blockSpeed = level === 1 ? 0.5 : level === 2 ? 1 : 1.5;
+
+      blockInterval = setInterval(spawnBlock, 2000);
+      draw();
+    }
+
+    function drawPlayer() {
+      ctx.fillStyle = "lime";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawBullets() {
+      ctx.fillStyle = "yellow";
+      bullets.forEach(b => ctx.fillRect(b.x, b.y, 4, 10));
+    }
+
+    function drawBlocks() {
+      ctx.fillStyle = "crimson";
+      ctx.font = "14px sans-serif";
+      ctx.textAlign = "center";
+      blocks.forEach(b => {
+        ctx.fillRect(b.x, b.y, b.size, b.size);
+        ctx.fillStyle = "white";
+        ctx.fillText(b.hp, b.x + b.size / 2, b.y + b.size / 1.5);
+        ctx.fillStyle = "crimson";
+      });
+    }
+
+    function updateBullets() {
+      bullets.forEach(b => b.y -= 6);
+      bullets = bullets.filter(b => b.y > 0);
+    }
+
+    function updateBlocks() {
+      blocks.forEach(b => b.y += blockSpeed);
+      blocks.forEach(b => {
+        if (b.y + b.size >= canvas.height) {
+          gameOver = true;
+        }
+      });
+    }
+
+    function spawnBlock() {
+      const size = 40;
+      const x = Math.floor(Math.random() * (canvas.width / size)) * size;
+      const hp = Math.floor(Math.random() * 3) + 1;
+      blocks.push({ x, y: 0, size, hp });
+    }
+
+    function checkCollisions() {
+      bullets.forEach((b, bi) => {
+        blocks.forEach((blk, bi2) => {
+          if (
+            b.x < blk.x + blk.size &&
+            b.x + 4 > blk.x &&
+            b.y < blk.y + blk.size &&
+            b.y + 10 > blk.y
+          ) {
+            bullets.splice(bi, 1);
+            blk.hp--;
+            if (blk.hp <= 0) {
+              blocks.splice(bi2, 1);
+              score++;
+              document.getElementById("score").textContent = `🏆 Skor: ${score}`;
+            }
+          }
+        });
+      });
+    }
+
+    function draw() {
+      if (gameOver) {
+        ctx.fillStyle = "white";
+        ctx.font = "24px sans-serif";
+        ctx.fillText("💥 Game Over!", 120, 250);
+        ctx.fillText(`Skor Akhir: ${score}`, 130, 290);
+        clearInterval(blockInterval);
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawBullets();
+      drawBlocks();
+      updateBullets();
+      updateBlocks();
+      checkCollisions();
+
+      animationFrame = requestAnimationFrame(draw);
+    }
+
+    function moveLeft() {
+      if (player.x > 0) player.x -= player.speed;
+    }
+
+    function moveRight() {
+      if (player.x + player.width < canvas.width) player.x += player.speed;
+    }
+
+    function shoot() {
+      bullets.push({ x: player.x + player.width / 2 - 2, y: player.y });
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft") moveLeft();
+      if (e.key === "ArrowRight") moveRight();
+      if (e.key === " " || e.key === "Spacebar") shoot();
+    });
+  </script>
+</body>
+</html>
