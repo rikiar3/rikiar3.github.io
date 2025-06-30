@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+     <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+    <!-- my fons  -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+    <!-- my CSS -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- font fontawesome -->
+    <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <title>Catch the Box!</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+    }
+
+    #game-container {
+      position: relative;
+      width: 300px;
+      height: 300px;
+      margin: 20px auto;
+      background: #e0e0e0;
+      border: 2px solid #333;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    #box {
+      position: absolute;
+      width: 40px;
+      height: 40px;
+      background: crimson;
+      border-radius: 5px;
+      cursor: pointer;
+      display: none;
+    }
+
+    #info {
+      font-size: 1.2em;
+      margin: 10px;
+    }
+
+    #start-btn {
+      padding: 10px 20px;
+      font-size: 1em;
+      background: #007bff;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #start-btn:hover {
+      background: #0056b3;
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Catch the Box!</h1>
+  <div id="game-container">
+    <div id="box"></div>
+  </div>
+  <div id="info">
+    <p>⏱️ Time: <span id="time">30</span>s</p>
+    <p>🏆 Score: <span id="score">0</span></p>
+  </div>
+  <button id="start-btn">Start Game</button>
+  <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
+
+  <script>
+    const box = document.getElementById('box');
+    const scoreDisplay = document.getElementById('score');
+    const timeDisplay = document.getElementById('time');
+    const startBtn = document.getElementById('start-btn');
+    const gameContainer = document.getElementById('game-container');
+
+    let score = 0;
+    let timeLeft = 30;
+    let gameInterval;
+    let moveInterval;
+
+    function getRandomPosition() {
+      const maxX = gameContainer.clientWidth - box.clientWidth;
+      const maxY = gameContainer.clientHeight - box.clientHeight;
+      const x = Math.floor(Math.random() * maxX);
+      const y = Math.floor(Math.random() * maxY);
+      return { x, y };
+    }
+
+    function moveBox() {
+      const { x, y } = getRandomPosition();
+      box.style.left = `${x}px`;
+      box.style.top = `${y}px`;
+      box.style.display = 'block';
+    }
+
+    function startGame() {
+      score = 0;
+      timeLeft = 30;
+      scoreDisplay.textContent = score;
+      timeDisplay.textContent = timeLeft;
+      startBtn.disabled = true;
+
+      moveBox();
+      moveInterval = setInterval(moveBox, 1000);
+
+      gameInterval = setInterval(() => {
+        timeLeft--;
+        timeDisplay.textContent = timeLeft;
+        if (timeLeft <= 0) {
+          clearInterval(gameInterval);
+          clearInterval(moveInterval);
+          box.style.display = 'none';
+          alert(`⏰ Time's up! Your score: ${score}`);
+          startBtn.disabled = false;
+        }
+      }, 1000);
+    }
+
+    box.addEventListener('click', () => {
+      score++;
+      scoreDisplay.textContent = score;
+      moveBox();
+    });
+
+    startBtn.addEventListener('click', startGame);
+  </script>
+</body>
+</html>

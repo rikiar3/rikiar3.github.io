@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Roda Arisan</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      background: #f0f8ff;
+      padding: 20px;
+    }
+    textarea {
+      width: 90%;
+      height: 100px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    canvas {
+      margin-top: 20px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      margin-top: 10px;
+      background-color: #28a745;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #218838;
+    }
+  </style>
+    <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+  <!-- my fons  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <!-- my CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- font fontawesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <h2>🎡 Lucky Spin Arisan</h2>
+  <p>Selamat datang di Roda Rezeki, tempat di mana keberuntungan berputar! Masukkan nama peserta, putar roda, dan lihat siapa yang ditunjuk takdir!
+</p>
+  <p>Masukkan nama-nama peserta (satu per baris):</p>
+  <textarea id="nameList" placeholder="Contoh:\nRina\nBudi\nSari\nDedi"></textarea><br>
+  <button onclick="spinWheel()">Mulai Kocok</button>
+  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+
+  <canvas id="wheelCanvas" width="400" height="400"></canvas>
+
+  <script>
+    const canvas = document.getElementById("wheelCanvas");
+    const ctx = canvas.getContext("2d");
+    const center = canvas.width / 2;
+    let names = [];
+    let angle = 0;
+    let spinning = false;
+    let rotationSpeed = 0;
+
+    function getColor(index, total) {
+      const hue = index * (360 / total);
+      return `hsl(${hue}, 70%, 60%)`;
+    }
+
+    function drawWheel() {
+      const total = names.length;
+      const arc = 2 * Math.PI / total;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      for (let i = 0; i < total; i++) {
+        const start = angle + i * arc;
+        const end = start + arc;
+
+        ctx.fillStyle = getColor(i, total);
+        ctx.beginPath();
+        ctx.moveTo(center, center);
+        ctx.arc(center, center, 150, start, end);
+        ctx.closePath();
+        ctx.fill();
+
+        // Teks nama
+        ctx.save();
+        ctx.translate(center, center);
+        ctx.rotate(start + arc / 2);
+        ctx.textAlign = "right";
+        ctx.fillStyle = "#000";
+        ctx.font = "16px sans-serif";
+        ctx.fillText(names[i], 140, 5);
+        ctx.restore();
+      }
+
+      // Jarum penunjuk
+      ctx.fillStyle = "#e74c3c";
+      ctx.beginPath();
+      ctx.moveTo(center, center - 160);
+      ctx.lineTo(center - 10, center - 180);
+      ctx.lineTo(center + 10, center - 180);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    function spinWheel() {
+      if (spinning) return;
+
+      const input = document.getElementById("nameList").value.trim();
+      names = input.split("\n").map(n => n.trim()).filter(n => n);
+      if (names.length < 2) {
+        alert("Masukkan minimal 2 nama!");
+        return;
+      }
+
+      spinning = true;
+      rotationSpeed = Math.random() * 0.3 + 0.25;
+      let deceleration = 0.002;
+
+      const spinInterval = setInterval(() => {
+        angle += rotationSpeed;
+        rotationSpeed -= deceleration;
+
+        if (rotationSpeed <= 0) {
+          clearInterval(spinInterval);
+          spinning = false;
+          angle %= 2 * Math.PI;
+
+          const arc = 2 * Math.PI / names.length;
+          const pointerAngle = (3 * Math.PI / 2 - angle + 2 * Math.PI) % (2 * Math.PI);
+          const index = Math.floor(pointerAngle / arc);
+          const winner = names[index];
+
+          setTimeout(() => {
+            const confirmDelete = confirm(`🎉 Pemenangnya: ${winner}\n\nHapus dari daftar?`);
+            if (confirmDelete) {
+              names.splice(index, 1);
+              document.getElementById("nameList").value = names.join("\n");
+            }
+            drawWheel();
+          }, 500);
+        }
+
+        drawWheel();
+      }, 20);
+    }
+
+    drawWheel();
+  </script>
+
+</body>
+</html>

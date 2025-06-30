@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+     <!-- Required meta tags -->
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Bootstrap CSS -->
+    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+    <!-- my fons  -->
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+    <!-- my CSS -->
+    <link rel="stylesheet" href="style.css" />
+
+    <!-- font fontawesome -->
+    <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <title>Avoid the Falling Blocks!</title>
+  <style>
+    body {
+      margin: 0;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+    }
+
+    canvas {
+      background: #222;
+      display: block;
+      margin: 20px auto;
+      border: 2px solid #fff;
+    }
+
+    #score {
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+<body>
+   <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
+  <h1>🧱 Hindari Balok!</h1>
+  <p id="score">🏆 Skor: 0</p>
+  <canvas id="gameCanvas" width="400" height="500"></canvas>
+
+  <script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+
+    const player = {
+      x: 180,
+      y: 460,
+      width: 40,
+      height: 20,
+      speed: 5
+    };
+
+    let blocks = [];
+    let score = 0;
+    let gameOver = false;
+    let blockSpeed = 2;
+
+    function drawPlayer() {
+      ctx.fillStyle = "lime";
+      ctx.fillRect(player.x, player.y, player.width, player.height);
+    }
+
+    function drawBlocks() {
+      ctx.fillStyle = "crimson";
+      blocks.forEach(block => {
+        ctx.fillRect(block.x, block.y, block.width, block.height);
+      });
+    }
+
+    function updateBlocks() {
+      blocks.forEach(block => {
+        block.y += blockSpeed;
+      });
+
+      blocks = blocks.filter(block => block.y < canvas.height);
+
+      if (Math.random() < 0.03) {
+        blocks.push({
+          x: Math.random() * (canvas.width - 40),
+          y: -20,
+          width: 40,
+          height: 20
+        });
+      }
+    }
+
+    function checkCollision() {
+      for (let block of blocks) {
+        if (
+          player.x < block.x + block.width &&
+          player.x + player.width > block.x &&
+          player.y < block.y + block.height &&
+          player.y + player.height > block.y
+        ) {
+          gameOver = true;
+        }
+      }
+    }
+
+    function draw() {
+      if (gameOver) {
+        ctx.fillStyle = "white";
+        ctx.font = "24px sans-serif";
+        ctx.fillText("💥 Game Over!", 120, 250);
+        ctx.fillText(`Skor Akhir: ${score}`, 130, 290);
+        return;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      drawPlayer();
+      drawBlocks();
+      updateBlocks();
+      checkCollision();
+
+      score++;
+      document.getElementById("score").textContent = `🏆 Skor: ${score}`;
+      if (score % 500 === 0) blockSpeed += 0.5;
+
+      requestAnimationFrame(draw);
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowLeft" && player.x > 0) {
+        player.x -= player.speed;
+      } else if (e.key === "ArrowRight" && player.x + player.width < canvas.width) {
+        player.x += player.speed;
+      }
+    });
+
+    draw();
+  </script>
+</body>
+</html>

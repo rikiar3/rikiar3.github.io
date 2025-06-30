@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lomba Arisan</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: #e0f7fa;
+      text-align: center;
+      padding: 20px;
+    }
+    textarea {
+      width: 90%;
+      height: 100px;
+      font-size: 16px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 12px 24px;
+      font-size: 18px;
+      background-color: #00796b;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #004d40;
+    }
+    .track {
+      position: relative;
+      width: 100%;
+      max-width: 600px;
+      height: 40px;
+      margin: 10px auto;
+      background: #b2dfdb;
+      border-radius: 20px;
+      overflow: hidden;
+    }
+    .runner {
+      position: absolute;
+      height: 100%;
+      padding: 0 10px;
+      border-radius: 20px;
+      line-height: 40px;
+      font-weight: bold;
+      white-space: nowrap;
+      transition: left 0.1s;
+      color: #000;
+    }
+    .finish-line {
+      position: absolute;
+      top: 0;
+      width: 6px;
+      height: 100%;
+      background: red;
+    }
+  </style>
+    <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+  <!-- my fons  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <!-- my CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- font fontawesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <h2>🏃‍♂️ Siapa Cepat Dia Dapat</h2>
+  <p>Selamat datang di Lomba Rezeki, arisan paling seru dengan gaya balapan! Siapa yang paling cepat menyentuh garis finish, dia yang menang!
+</p>
+  <p>Masukkan nama-nama peserta (satu per baris):</p>
+  <textarea id="nameList" placeholder="Contoh:\nRina\nBudi\nSari\nDedi"></textarea><br>
+  <button onclick="startRace()">Mulai Lomba</button>
+  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+  
+
+  <div id="raceArea"></div>
+
+  <script>
+    let runners = [];
+    let raceInterval;
+    let winnerDeclared = false;
+
+    function getColor(index, total) {
+      const hue = index * (360 / total);
+      return `hsl(${hue}, 70%, 70%)`;
+    }
+
+    function startRace() {
+      const input = document.getElementById("nameList").value.trim();
+      const names = input.split("\n").map(n => n.trim()).filter(n => n);
+      if (names.length < 2) {
+        alert("Masukkan minimal 2 nama!");
+        return;
+      }
+
+      clearInterval(raceInterval);
+      document.getElementById("raceArea").innerHTML = "";
+      runners = [];
+      winnerDeclared = false;
+
+      names.forEach((name, i) => {
+        const track = document.createElement("div");
+        track.className = "track";
+
+        const finish = document.createElement("div");
+        finish.className = "finish-line";
+        finish.style.right = "50px"; // Geser garis finish ke kiri
+        track.appendChild(finish);
+
+        const runner = document.createElement("div");
+        runner.className = "runner";
+        runner.style.left = "0px";
+        runner.style.backgroundColor = getColor(i, names.length);
+        runner.textContent = name;
+
+        track.appendChild(runner);
+        document.getElementById("raceArea").appendChild(track);
+
+        runners.push({ name, element: runner, position: 0 });
+      });
+
+      raceInterval = setInterval(() => {
+        runners.forEach(runner => {
+          if (winnerDeclared) return;
+
+          const step = Math.random() * 5 + 1;
+          runner.position += step;
+          runner.element.style.left = `${runner.position}px`;
+
+          const runnerRight = runner.element.offsetLeft + runner.element.offsetWidth;
+          const track = runner.element.parentElement;
+          const finishX = track.offsetWidth - 50; // posisi garis finish
+
+          if (runnerRight >= finishX) {
+            winnerDeclared = true;
+            clearInterval(raceInterval);
+            const winner = runner.name;
+
+            setTimeout(() => {
+              const confirmDelete = confirm(`🎉 Pemenangnya: ${winner}\n\nHapus dari daftar?`);
+              if (confirmDelete) {
+                const updated = runners.filter(r => r.name !== winner).map(r => r.name);
+                document.getElementById("nameList").value = updated.join("\n");
+              }
+            }, 300);
+          }
+        });
+      }, 50);
+    }
+  </script>
+
+</body>
+</html>

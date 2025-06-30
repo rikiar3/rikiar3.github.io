@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kocokan Arisan</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      padding: 20px;
+      background: #f0f8ff;
+    }
+    h1 {
+      font-size: 28px;
+    }
+    textarea {
+      width: 90%;
+      height: 150px;
+      font-size: 18px;
+      padding: 10px;
+      margin-bottom: 15px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 18px;
+      margin: 10px;
+      border: none;
+      border-radius: 8px;
+      background-color: #007bff;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #0056b3;
+    }
+    #result {
+      font-size: 26px;
+      font-weight: bold;
+      margin-top: 25px;
+      color: #2e8b57;
+    }
+    #rolling {
+      font-size: 22px;
+      color: #555;
+      margin-top: 15px;
+      height: 35px;
+    }
+  </style>
+
+    <!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+  <!-- my fons  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <!-- my CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- font fontawesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+</head>
+<body>
+
+  <h1>🎉 Nama Siapa Hari Ini?</h1>
+  <p>Selamat datang di Kocok Nama!, aplikasi arisan sederhana yang cepat dan praktis. Masukkan nama, klik tombol, dan biarkan keberuntungan bicara!
+</p>
+  <p style="font-size: 18px;">Masukkan nama-nama peserta (satu per baris):</p>
+  <textarea id="nameList" placeholder="Contoh:\nRina\nBudi\nSari\nDedi"></textarea><br>
+  <button onclick="startDraw()">Mulai Kocok</button>
+  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+
+  <div id="rolling"></div>
+  <div id="result"></div>
+
+  <script>
+    let names = [];
+    let interval;
+
+    function startDraw() {
+      const input = document.getElementById("nameList").value.trim();
+      if (!input) {
+        alert("Masukkan minimal satu nama!");
+        return;
+      }
+
+      names = input.split("\n").map(n => n.trim()).filter(n => n);
+      if (names.length === 0) {
+        alert("Daftar nama kosong!");
+        return;
+      }
+
+      const rollingDiv = document.getElementById("rolling");
+      const resultDiv = document.getElementById("result");
+      resultDiv.textContent = "";
+      let currentIndex = 0;
+
+      interval = setInterval(() => {
+        rollingDiv.textContent = names[currentIndex];
+        currentIndex = (currentIndex + 1) % names.length;
+      }, 100);
+
+      setTimeout(() => {
+        clearInterval(interval);
+        const winner = names[Math.floor(Math.random() * names.length)];
+        rollingDiv.textContent = "";
+        resultDiv.textContent = `🎉 Pemenangnya: ${winner}`;
+
+        setTimeout(() => {
+          const confirmDelete = confirm(`Apakah ingin menghapus ${winner} dari daftar?`);
+          if (confirmDelete) {
+            names = names.filter(n => n !== winner);
+            document.getElementById("nameList").value = names.join("\n");
+          }
+        }, 500);
+      }, 5000);
+    }
+  </script>
+
+</body>
+</html>
