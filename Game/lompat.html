@@ -5,11 +5,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Hindari Balok!</title>
 
-  <!-- Bootstrap CSS -->
+  <!-- Bootstrap & Font -->
   <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
   <link href="fontawesome/css/all.min.css" rel="stylesheet" />
-  <link rel="stylesheet" href="style.css" />
 
   <style>
     * {
@@ -97,7 +96,7 @@
   <div id="controls" class="d-flex flex-column align-items-center">
     <div class="mb-2">
       <button class="btn btn-success me-2" onclick="startGame()">▶️ Mulai</button>
-      <button class="btn btn-warning" onclick="jump()">⬆️ Lompat</button>
+      <button class="btn btn-warning me-2" onclick="jump()">⬆️ Lompat</button>
     </div>
     <a class="btn btn-outline-primary btn-back" href="../aplikasi.html">
       <i class="fas fa-arrow-left me-2"></i>Kembali
@@ -130,15 +129,17 @@
       isJumping = true;
       jumpSound.play();
       player.classList.add("jumping");
-      player.style.transition = "bottom 0.3s";
-      player.style.bottom = "100px";
+      player.style.transition = "bottom 0.4s ease-out";
+      player.style.bottom = "140px";
+
       setTimeout(() => {
+        player.style.transition = "bottom 0.4s ease-in";
         player.style.bottom = "0px";
         setTimeout(() => {
           isJumping = false;
           player.classList.remove("jumping");
-        }, 300);
-      }, 300);
+        }, 400);
+      }, 400);
     }
 
     function createObstacle() {
@@ -159,14 +160,29 @@
           obstacleRect.top < playerRect.bottom
         ) {
           hitSound.play();
-          alert("💥 Game Over!\nSkor: " + score);
           clearInterval(gameInterval);
           clearInterval(obstacleInterval);
           clearInterval(scoreInterval);
+
           if (score > highscore) {
             localStorage.setItem("highscore", score);
           }
-          location.reload();
+
+          const gameLink = window.location.href;
+          const message = `🔥 Aku dapat skor ${score} di game Hindari Balok! Coba kalahkan aku di sini:\n${gameLink}`;
+
+          const share = confirm(`💥 Game Over!\nSkor kamu: ${score}\n\nIngin bagikan skor ke teman?`);
+          if (share) {
+            navigator.clipboard.writeText(message).then(() => {
+              alert("📋 Skor dan link berhasil disalin! Bagikan ke temanmu!");
+              location.reload();
+            }).catch(() => {
+              alert("❌ Gagal menyalin. Coba manual ya.");
+              location.reload();
+            });
+          } else {
+            location.reload();
+          }
         }
 
         if (obstacleRect.right < 0) {
@@ -207,7 +223,7 @@
     });
   </script>
 
-  <!-- Bootstrap JS (optional if needed) -->
+  <!-- Bootstrap JS -->
   <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
