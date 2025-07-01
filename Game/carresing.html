@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Car Racing Game</title>
+  <style>
+    body {
+      margin: 0;
+      background: #333;
+      overflow: hidden;
+      font-family: sans-serif;
+    }
+
+    #gameArea {
+      position: relative;
+      width: 400px;
+      height: 600px;
+      margin: 20px auto;
+      background: #555;
+      border: 3px solid #fff;
+      overflow: hidden;
+    }
+
+    #road {
+      position: absolute;
+      width: 10px;
+      height: 200%;
+      background: repeating-linear-gradient(
+        to bottom,
+        white 0px,
+        white 20px,
+        transparent 20px,
+        transparent 40px
+      );
+      left: 50%;
+      transform: translateX(-50%);
+      top: 0;
+    }
+
+    #playerCar {
+      position: absolute;
+      width: 40px;
+      height: 70px;
+      background: red;
+      bottom: 20px;
+      left: 180px;
+      border-radius: 5px;
+      z-index: 10;
+    }
+
+    .enemyCar {
+      position: absolute;
+      width: 40px;
+      height: 70px;
+      background: blue;
+      top: -100px;
+      border-radius: 5px;
+    }
+
+    #speedDisplay {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      color: white;
+      font-weight: bold;
+    }
+
+    #controls {
+      text-align: center;
+      margin-top: 10px;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      margin: 5px;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      background: #0a84ff;
+      color: white;
+      cursor: pointer;
+    }
+
+    .btn:active {
+      background: #005bb5;
+    }
+
+    #startBtn {
+      display: block;
+      margin: 10px auto;
+      background: green;
+    }
+
+    #gameOver {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      color: white;
+      font-size: 24px;
+      font-weight: bold;
+      background: rgba(0, 0, 0, 0.8);
+      padding: 20px;
+      border-radius: 10px;
+      display: none;
+      z-index: 20;
+      text-align: center;
+    }
+
+    #shareBtn {
+      margin-top: 10px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    #shareBtn:active {
+      background: #1e7e34;
+    }
+
+    #controls {
+  display: flex;
+  justify-content: space-between;
+  padding: 10px 20px;
+}
+
+#leftControls, #rightControls {
+  display: flex;
+  gap: 10px;
+}
+
+#rightControls {
+  flex-direction: column;
+  align-items: flex-end;
+}
+  </style>
+</head>
+<body>
+  <div id="gameArea">
+    <div id="road"></div>
+    <div id="playerCar"></div>
+    <div id="speedDisplay">Speed: 0</div>
+    <div id="gameOver">
+      💥 Game Over 💥<br>
+      Skor: <span id="finalScore">0</span><br>
+      <button id="shareBtn">📤 Bagikan Skor</button>
+    </div>
+  </div>
+
+  <button id="startBtn" class="btn">Mulai</button>
+
+<div id="controls">
+  <div id="leftControls">
+    <button class="btn" id="leftBtn">⬅️ Kiri</button>
+    <button class="btn" id="rightBtn">➡️ Kanan</button>
+  </div>
+  <div id="rightControls">
+    <button class="btn" id="gasBtn">⛽ Gas</button>
+  </div>
+  <a href="../aplikasi.html" class="btn btn-outline-secondary btn-back">
+      <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
+</div>
+
+  <script>
+    const gameArea = document.getElementById("gameArea");
+    const playerCar = document.getElementById("playerCar");
+    const speedDisplay = document.getElementById("speedDisplay");
+    const startBtn = document.getElementById("startBtn");
+    const gasBtn = document.getElementById("gasBtn");
+    const leftBtn = document.getElementById("leftBtn");
+    const rightBtn = document.getElementById("rightBtn");
+    const gameOverText = document.getElementById("gameOver");
+    const finalScore = document.getElementById("finalScore");
+    const shareBtn = document.getElementById("shareBtn");
+    const road = document.getElementById("road");
+
+    let speed = 0;
+    let position = 180;
+    let roadOffset = 0;
+    let gasPressed = false;
+    let gasInterval = null;
+    let gameRunning = false;
+    let enemies = [];
+    let spawnInterval = null;
+    let score = 0;
+
+    function createEnemy() {
+      const enemy = document.createElement("div");
+      enemy.classList.add("enemyCar");
+      enemy.style.left = Math.floor(Math.random() * 360) + "px";
+      enemy.style.top = "-100px";
+      gameArea.appendChild(enemy);
+      enemies.push(enemy);
+    }
+
+    function moveEnemies() {
+      enemies.forEach((enemy, index) => {
+        let top = parseFloat(enemy.style.top);
+        top += speed;
+        enemy.style.top = top + "px";
+
+        if (top > 600) {
+          enemy.remove();
+          enemies.splice(index, 1);
+        }
+      });
+    }
+
+    function checkCollision() {
+      const playerRect = playerCar.getBoundingClientRect();
+      return enemies.some(enemy => {
+        const enemyRect = enemy.getBoundingClientRect();
+        return !(
+          playerRect.bottom < enemyRect.top ||
+          playerRect.top > enemyRect.bottom ||
+          playerRect.right < enemyRect.left ||
+          playerRect.left > enemyRect.right
+        );
+      });
+    }
+
+    function update() {
+      if (!gameRunning) return;
+
+      moveEnemies();
+
+      if (checkCollision()) {
+        gameOver();
+        return;
+      }
+
+      if (!gasPressed && speed > 0) {
+        speed -= 0.05;
+        speed = Math.max(speed, 0);
+      }
+
+      roadOffset += speed;
+      road.style.top = -(roadOffset % 40) + "px";
+
+      score += speed * 0.1;
+      speedDisplay.textContent = "Speed: " + speed.toFixed(1) + " | Skor: " + Math.floor(score);
+      requestAnimationFrame(update);
+    }
+
+    function gameOver() {
+      gameRunning = false;
+      gameOverText.style.display = "block";
+      finalScore.textContent = Math.floor(score);
+      clearInterval(gasInterval);
+      clearInterval(spawnInterval);
+      enemies.forEach(e => e.remove());
+      enemies = [];
+    }
+
+    function startGame() {
+      speed = 0;
+      position = 180;
+      roadOffset = 0;
+      gasPressed = false;
+      score = 0;
+      playerCar.style.left = position + "px";
+      gameOverText.style.display = "none";
+      enemies.forEach(e => e.remove());
+      enemies = [];
+      clearInterval(gasInterval);
+      clearInterval(spawnInterval);
+      gameRunning = true;
+      spawnInterval = setInterval(createEnemy, 2000);
+      update();
+    }
+
+    function moveLeft() {
+      if (position > 0) {
+        position -= 10;
+        playerCar.style.left = position + "px";
+      }
+    }
+
+    function moveRight() {
+      if (position < 360) {
+        position += 10;
+        playerCar.style.left = position + "px";
+      }
+    }
+
+    function accelerate() {
+      speed = Math.min(speed + 0.5, 10);
+    }
+
+    // Keyboard
+    document.addEventListener("keydown", (e) => {
+      if (!gameRunning) return;
+      if (e.key === "ArrowLeft") moveLeft();
+      if (e.key === "ArrowRight") moveRight();
+      if (e.key.toLowerCase() === "x") {
+        gasPressed = true;
+        accelerate();
+      }
+    });
+
+    document.addEventListener("keyup", (e) => {
+      if (e.key.toLowerCase() === "x") {
+        gasPressed = false;
+      }
+    });
+
+    // Mobile
+    function startGas() {
+      gasPressed = true;
+      if (!gasInterval) {
+        gasInterval = setInterval(() => {
+          if (gameRunning) accelerate();
+        }, 100);
+      }
+    }
+
+    function stopGas() {
+      gasPressed = false;
+      clearInterval(gasInterval);
+      gasInterval = null;
+    }
+
+  // Kontrol tombol di layar sentuh dan mouse
+leftBtn.addEventListener("click", moveLeft);
+rightBtn.addEventListener("click", moveRight);
+
+// Tombol gas (HP & PC)
+gasBtn.addEventListener("touchstart", startGas);
+gasBtn.addEventListener("touchend", stopGas);
+gasBtn.addEventListener("mousedown", startGas);
+gasBtn.addEventListener("mouseup", stopGas);
+
+// Tombol mulai
+startBtn.addEventListener("click", startGame);
+
+    // Tombol Share
+    shareBtn.addEventListener("click", () => {
+      const skor = Math.floor(score);
+      const shareText = `Aku mencetak skor ${skor} di game Car Racing! 🚗💨 Coba kalahkan skorku!`;
+
+      if (navigator.share) {
+        navigator.share({
+          title: "Car Racing Game",
+          text: shareText,
+          url: window.location.href
+        }).catch((err) => {
+          alert("Gagal membagikan skor: " + err);
+        });
+      } else {
+        alert("Browser kamu tidak mendukung fitur berbagi otomatis. Skor: " + skor);
+      }
+    });
+  </script>
+</body>
+</html>
