@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Game SOS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background: #f0f0f0;
+        }
+
+        h1 {
+            margin-top: 20px;
+        }
+
+        #controls {
+            margin: 20px;
+        }
+
+        #board {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-gap: 5px;
+            justify-content: center;
+            margin: 20px auto;
+        }
+
+        .cell {
+            width: 60px;
+            height: 60px;
+            background: white;
+            border: 2px solid #333;
+            font-size: 24px;
+            line-height: 60px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .cell.disabled {
+            pointer-events: none;
+            background: #ddd;
+        }
+
+        .cell.highlight {
+            background-color: #90ee90;
+            font-weight: bold;
+        }
+
+        .cell.p1 {
+            color: red;
+        }
+
+        .cell.p2 {
+            color: blue;
+        }
+
+        select,
+        button {
+            padding: 8px;
+            font-size: 16px;
+            margin: 5px;
+        }
+
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🎮 Game SOS</h1>
+    <div id="controls">
+        <select id="mode">
+            <option value="2p">2 Player</option>
+            <option value="easy">Solo - Mudah</option>
+            <option value="medium">Solo - Sedang</option>
+            <option value="hard">Solo - Sulit</option>
+        </select>
+        <button onclick="startGame()">Mulai</button>
+    </div>
+    <div id="board"></div>
+    <div id="status"></div>
+    <div id="scores">
+        <p>Player 1: <span id="score1">0</span> | Player 2 / Bot: <span id="score2">0</span></p>
+    </div>
+
+    <script>
+        const boardSize = 5;
+        let board = [];
+        let owners = [];
+        let currentPlayer = 'Player 1';
+        let isSolo = false;
+        let difficulty = 'easy';
+        let gameOver = false;
+        let score1 = 0;
+        let score2 = 0;
+        let highlights = [];
+
+        function startGame() {
+            const mode = document.getElementById('mode').value;
+            isSolo = mode !== '2p';
+            difficulty = mode;
+            currentPlayer = 'Player 1';
+            gameOver = false;
+            board = Array(boardSize * boardSize).fill('');
+            owners = Array(boardSize * boardSize).fill('');
+            score1 = 0;
+            score2 = 0;
+            highlights = [];
+            updateScores();
+            renderBoard();
+            updateStatus(`${currentPlayer}'s turn`);
+        }
+
+        function renderBoard() {
+            const boardDiv = document.getElementById('board');
+            boardDiv.innerHTML = '';
+            const uniqueHighlights = [...new Set(highlights)];
+            board.forEach((val, i) => {
+                const cell = document.createElement('div');
+                cell.className = 'cell';
+                if (uniqueHighlights.includes(i)) {
+                    cell.classList.add('highlight');
+                }
+                if (owners[i]) {
+                    cell.classList.add(owners[i]);
+                }
+                cell.textContent = val;
+                if (val === '' && !gameOver) {
+                    cell.onclick = () => handleMove(i);
+                } else {
+                    cell.classList.add('disabled');
+                }
+                boardDiv.appendChild(cell);
+            });
+        }
+
+        function handleMove(index) {
+            if (board[index] !== '' || gameOver) return;
+
+            const letter = prompt("Masukkan huruf (S atau O):").toUpperCase();
+            if (letter !== 'S' && letter !== 'O') {
+                alert("Hanya boleh S atau O!");
+                return;
+            }
+
+            board[index] = letter;
+            owners[index] = currentPlayer === 'Player 1' ? 'p1' : 'p2';
+            const sosLines = checkSOS(index);
+            if (sosLines.length > 0) {
+                const flat = sosLines.flat();
+                highlights.push(...flat);
+                if (currentPlayer === 'Player 1') score1 += sosLines.length;
+                else score2 += sosLines.length;
+                updateScores();
+                updateStatus(`${currentPlayer} membuat ${sosLines.length} SOS!`);
+                renderBoard();
+                if (isSolo && currentPlayer === 'Player 1') return;
+            } else {
+                switchPlayer();
+            }
+
+            renderBoard();
+
+            if (isSolo && currentPlayer === 'Bot') {
+                setTimeout(botMove, 500);
+            }
+        }
+
+        function switchPlayer() {
+            if (isSolo) {
+                currentPlayer = currentPlayer === 'Player 1' ? 'Bot' : 'Player 1';
+            } else {
+                currentPlayer = currentPlayer === 'Player 1' ? 'Player 2' : 'Player 1';
+            }
+            updateStatus(`${currentPlayer}'s turn`);
+        }
+
+        function updateStatus(msg) {
+            document.getElementById('status').textContent = msg;
+        }
+
+        function updateScores() {
+            document.getElementById('score1').textContent = score1;
+            document.getElementById('score2').textContent = score2;
+        }
+
+        function botMove() {
+            let move;
+            const empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
+
+            if (difficulty === 'easy') {
+                move = empty[Math.floor(Math.random() * empty.length)];
+            } else if (difficulty === 'medium') {
+                move = findBestMove() || empty[Math.floor(Math.random() * empty.length)];
+            } else {
+                move = findBestMove(true) || empty[Math.floor(Math.random() * empty.length)];
+            }
+
+            board[move] = Math.random() < 0.5 ? 'S' : 'O';
+            owners[move] = 'p2';
+            const sosLines = checkSOS(move);
+            if (sosLines.length > 0) {
+                const flat = sosLines.flat();
+                highlights.push(...flat);
+                score2 += sosLines.length;
+                updateScores();
+                updateStatus(`Bot membuat ${sosLines.length} SOS!`);
+                renderBoard();
+                setTimeout(botMove, 500);
+            } else {
+                switchPlayer();
+                renderBoard();
+            }
+        }
+        function getIndex(r, c) {
+            if (r < 0 || c < 0 || r >= boardSize || c >= boardSize) return null;
+            return r * boardSize + c;
+        }
+        function findBestMove() {
+            for (let i = 0; i < board.length; i++) {
+                if (board[i] === '') {
+                    for (let letter of ['S', 'O']) {
+                        board[i] = letter;
+                        if (checkSOS(i).length > 0) {
+                            board[i] = '';
+                            return i;
+                        }
+                        board[i] = '';
+                    }
+                }
+            }
+            return null;
+        }
+
+        function checkSOS(index) {
+            const row = Math.floor(index / boardSize);
+            const col = index % boardSize;
+            const directions = [
+                [0, 1],   // →
+                [1, 0],   // ↓
+                [1, 1],   // ↘
+                [1, -1]   // ↙
+            ];
+            const found = [];
+
+            for (let [dx, dy] of directions) {
+                const r1 = row - dx, c1 = col - dy;
+                const r2 = row + dx, c2 = col + dy;
+                const i1 = getIndex(r1, c1);
+                const i2 = getIndex(r2, c2);
+                if (i1 !== null && i2 !== null) {
+                    if (board[i1] === 'S' && board[index] === 'O' && board[i2] === 'S') {
+                        found.push([i1, index, i2]);
+                    }
+                }
+
+                const r3 = row - 2 * dx, c3 = col - 2 * dy;
+                const i3 = getIndex(r3, c3);
+                if (i3 !== null && i1 !== null) {
+                    if (board[i3] === 'S' && board[i1] === 'O' && board[index] === 'S') {
+                        found.push([i3, i1, index]);
+                    }
+                }
+
+                const r4 = row + 2 * dx, c4 = col + 2 * dy;
+                const i4 = getIndex(r4, c4);
+                if (i4 !== null && i2 !== null) {
+                    if (board[index] === 'S' && board[i2] === 'O' && board[i4] === 'S') {
+                        found.push([index, i2, i4]);
+                    }
+                }
+            }
+
+            return found;
+        }
+
+        startGame(); // Auto-start on load
+    </script>
+</body>
+
+</html>
