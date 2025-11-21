@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>Viewer Excel + Sort + Format Angka</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+    }
+    h1 {
+      color: #333;
+    }
+    input[type="file"] {
+      margin-bottom: 20px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin-top: 10px;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+    }
+    th {
+      background-color: #f0f0f0;
+      cursor: pointer;
+      text-align: left;
+    }
+    td.numeric {
+      text-align: right;
+    }
+    th.sort-asc::after {
+      content: " ▲";
+    }
+    th.sort-desc::after {
+      content: " ▼";
+    }
+  </style>
+</head>
+<body>
+  <h1>Lihat Data Excel (.xls/.xlsx)</h1>
+  <input type="file" id="upload" accept=".xls,.xlsx" />
+  <div id="excel-data"></div>
+   <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
+
+  <!-- SheetJS -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    let currentSort = { index: null, ascending: true };
+
+    document.getElementById('upload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        renderTable(json);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function renderTable(data) {
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+
+      const headerRow = document.createElement('tr');
+      data[0].forEach((col, i) => {
+        const th = document.createElement('th');
+        th.textContent = col || `Kolom ${i + 1}`;
+        th.addEventListener('click', () => sortTable(table, i));
+        headerRow.appendChild(th);
+      });
+      thead.appendChild(headerRow);
+
+      for (let i = 1; i < data.length; i++) {
+        const row = document.createElement('tr');
+        data[i].forEach(cell => {
+          const td = document.createElement('td');
+          if (typeof cell === 'number') {
+            td.textContent = formatNumber(cell);
+            td.classList.add('numeric');
+          } else if (!isNaN(cell) && cell !== null && cell !== '') {
+            const num = parseFloat(cell);
+            if (!isNaN(num)) {
+              td.textContent = formatNumber(num);
+              td.classList.add('numeric');
+            } else {
+              td.textContent = cell;
+            }
+          } else {
+            td.textContent = cell ?? '';
+          }
+          row.appendChild(td);
+        });
+        tbody.appendChild(row);
+      }
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+      const container = document.getElementById('excel-data');
+      container.innerHTML = '';
+      container.appendChild(table);
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString('id-ID');
+    }
+
+    function sortTable(table, colIndex) {
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.rows);
+      const ths = table.querySelectorAll('th');
+
+      ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+
+      if (currentSort.index === colIndex) {
+        currentSort.ascending = !currentSort.ascending;
+      } else {
+        currentSort.index = colIndex;
+        currentSort.ascending = true;
+      }
+
+      const ascending = currentSort.ascending;
+      const currentTh = ths[colIndex];
+      currentTh.classList.add(ascending ? 'sort-asc' : 'sort-desc');
+
+      rows.sort((a, b) => {
+        const aText = a.cells[colIndex].textContent.replace(/\./g, '').trim();
+        const bText = b.cells[colIndex].textContent.replace(/\./g, '').trim();
+        const aNum = parseFloat(aText);
+        const bNum = parseFloat(bText);
+
+        if (!isNaN(aNum) && !isNaN(bNum)) {
+          return ascending ? aNum - bNum : bNum - aNum;
+        } else {
+          return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        }
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+    }
+  </script>
+</body>
+</html>
