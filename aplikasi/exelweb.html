@@ -38,12 +38,33 @@
       content: " ▼";
     }
   </style>
+
+<!-- Required meta tags -->
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+  <!-- my fons  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <!-- my CSS -->
+  <link rel="stylesheet" href="../style.css" />
+
+  <!-- font fontawesome -->
+  <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
+
+
 </head>
 <body>
+	
   <h1>Lihat Data Excel (.xls/.xlsx)</h1>
+  <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
   <input type="file" id="upload" accept=".xls,.xlsx" />
   <div id="excel-data"></div>
-   <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
+   
 
   <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
