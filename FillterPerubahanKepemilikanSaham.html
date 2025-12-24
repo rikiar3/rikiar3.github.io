@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <!-- Bootstrap CSS -->
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
+
+  <!-- my fons  -->
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
+  <!-- my CSS -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- font fontawesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  
+  <title>Upload PDF - Perubahan Kepemilikan Saham 5%</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    input[type="file"] { margin-bottom: 10px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 6px; font-size: 13px; }
+    th { background: #f4f4f4; }
+    #loading {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(255,255,255,0.8);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      font-size: 16px;
+      color: #333;
+    }
+    .spinner {
+      border: 6px solid #f3f3f3;
+      border-top: 6px solid #3498db;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin-right: 10px;
+    }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+  </style>
+</head>
+<body>
+  <h2>Upload PDF untuk Scan Perubahan Kepemilikan Saham 5%</h2>
+  <input type="file" id="pdfUpload" accept="application/pdf">
+  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+  <div id="output"></div>
+
+  <div id="loading">
+    <div class="spinner"></div>
+    <span>Memproses PDF, harap tunggu...</span>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
+  <script>
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+      "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.worker.min.js";
+
+    const pdfUpload = document.getElementById('pdfUpload');
+    const outputDiv = document.getElementById('output');
+    const loadingDiv = document.getElementById('loading');
+
+    pdfUpload.addEventListener('change', async function() {
+      const file = this.files[0];
+      if (!file) return;
+
+      outputDiv.innerHTML = "";
+      loadingDiv.style.display = "flex";
+
+      const fileReader = new FileReader();
+      fileReader.onload = async function() {
+        try {
+          const typedArray = new Uint8Array(this.result);
+          const pdf = await pdfjsLib.getDocument({ data: typedArray }).promise;
+
+          const extracted = [];
+
+          for (let pageNum = 2; pageNum <= pdf.numPages; pageNum++) {
+            const page = await pdf.getPage(pageNum);
+            const textContent = await page.getTextContent();
+            const items = textContent.items.map(it => {
+              const tr = it.transform;
+              return { str: it.str.trim(), x: tr[4], y: tr[5] };
+            }).filter(it => it.str.length > 0);
+
+            const rows = groupByRows(items, 2.5);
+            rows.forEach(row => {
+              row.sort((a, b) => a.x - b.x);
+              const tokens = row.map(t => t.str);
+              const kode = extractKode(tokens);
+              const perubahan = extractPerubahan(row);
+              if (kode && perubahan !== null && perubahan !== 0) {
+                extracted.push({ kode, perubahan: formatNumber(perubahan) });
+              }
+            });
+          }
+
+          renderTable(extracted);
+        } catch (err) {
+          console.error(err);
+          outputDiv.innerHTML = "<p style='color:red'>Terjadi error saat membaca PDF.</p>";
+        } finally {
+          loadingDiv.style.display = "none";
+        }
+      };
+      fileReader.readAsArrayBuffer(file);
+    });
+
+    function groupByRows(items, yTol = 2.5) {
+      const sorted = items.slice().sort((a, b) => (b.y - a.y) || (a.x - b.x));
+      const rows = [];
+      let current = [];
+      for (let i = 0; i < sorted.length; i++) {
+        if (current.length === 0) { current.push(sorted[i]); continue; }
+        const lastY = current[0].y;
+        if (Math.abs(sorted[i].y - lastY) <= yTol) current.push(sorted[i]);
+        else { rows.push(current); current = [sorted[i]]; }
+      }
+      if (current.length) rows.push(current);
+      return rows;
+    }
+
+    function extractKode(tokens) {
+      for (let i = 0; i < Math.min(tokens.length, 6); i++) {
+        const t = tokens[i];
+        if (/^[A-Z]{3,6}$/.test(t)) return t;
+      }
+      return null;
+    }
+
+    // Ambil token paling kanan sebagai kolom perubahan
+    function extractPerubahan(row) {
+      if (!row || row.length === 0) return null;
+      const rightmost = row[row.length - 1].str;
+      if (rightmost === "-" || rightmost === "–") return null;
+      return parseLocaleNumber(rightmost);
+    }
+
+    function parseLocaleNumber(s) {
+      if (!s || s.trim() === "-" || s.trim() === "–") return null;
+      let raw = s.replace(/[^\d.,+\-]/g, '').replace('%','');
+      if (!raw) return null;
+      const hasComma = raw.includes(',');
+      const hasDot = raw.includes('.');
+      if (hasComma && !hasDot) {
+        const parts = raw.split(',');
+        raw = parts.length > 2 ? parts.join('') : raw.replace(',', '.');
+      } else if (hasDot && !hasComma) {
+        const parts = raw.split('.');
+        if (parts.length > 2) raw = parts.join('');
+      } else if (hasDot && hasComma) {
+        raw = raw.replace(/,/g, '');
+        const dots = (raw.match(/\./g) || []).length;
+        if (dots > 1) raw = raw.replace(/\./g, '');
+      }
+      const val = parseFloat(raw);
+      return Number.isFinite(val) ? val : null;
+    }
+
+    function formatNumber(n) {
+      return n.toLocaleString('en-US');
+    }
+
+    function renderTable(data) {
+      let html = "<table><thead><tr><th>No</th><th>Kode Efek</th><th>Perubahan</th></tr></thead><tbody>";
+      if (!data || data.length === 0) {
+        html += "<tr><td colspan='3'><i>Tidak ada perubahan ditemukan.</i></td></tr>";
+      } else {
+        data.forEach((row, idx) => {
+          html += `<tr><td>${idx + 1}</td><td>${row.kode}</td><td>${row.perubahan}</td></tr>`;
+        });
+      }
+      html += "</tbody></table>";
+      outputDiv.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
