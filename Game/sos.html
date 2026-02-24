@@ -2,115 +2,336 @@
 <html lang="id">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Game SOS</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>SOS Game - Varchar Games</title>
+
+    <!-- Bootstrap CSS -->
+    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+    <!-- Font Awesome -->
+    <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
+
     <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --primary: #3b82f6;
+            --secondary: #ef4444;
+            --text-main: #f8fafc;
+            --cell-bg: #1e293b;
+            --cell-hover: #334155;
+        }
+
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 20px;
+            margin: 0;
+            background-image:
+                radial-gradient(circle at 15% 50%, rgba(59, 130, 246, 0.15), transparent 25%),
+                radial-gradient(circle at 85% 30%, rgba(239, 68, 68, 0.15), transparent 25%);
+        }
+
+        .btn-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #94a3b8;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            padding: 10px 20px;
+            border-radius: 50px;
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .btn-back:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+
+        .game-header {
             text-align: center;
-            background: #f0f0f0;
+            margin-bottom: 30px;
         }
 
-        h1 {
-            margin-top: 20px;
+        .game-header h1 {
+            font-size: 3rem;
+            font-weight: 900;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            background: linear-gradient(to right, #60a5fa, #f87171);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin: 0;
+            text-shadow: 0 0 30px rgba(255, 255, 255, 0.1);
         }
 
-        #controls {
-            margin: 20px;
+        .game-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 30px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls-wrapper {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+
+        select,
+        .btn-start {
+            background: #0f172a;
+            color: white;
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: 'Outfit', sans-serif;
+            outline: none;
+            transition: all 0.3s;
+        }
+
+        select:focus {
+            border-color: var(--primary);
+        }
+
+        .btn-start {
+            background: var(--primary);
+            border-color: var(--primary);
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-start:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(59, 130, 246, 0.3);
+        }
+
+        .status-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px 25px;
+            border-radius: 15px;
+            margin-bottom: 30px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .player-score {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .player-name {
+            font-size: 0.9rem;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-weight: 600;
+        }
+
+        #score1 {
+            color: #60a5fa;
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        #score2 {
+            color: #f87171;
+            font-size: 2rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .status-text {
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-align: center;
+            flex: 1;
+            padding: 0 20px;
         }
 
         #board {
             display: grid;
-            grid-template-columns: repeat(5, 60px);
-            grid-gap: 5px;
-            justify-content: center;
-            margin: 20px auto;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin: 0 auto;
+            max-width: 400px;
         }
 
         .cell {
-            width: 60px;
-            height: 60px;
-            background: white;
-            border: 2px solid #333;
-            font-size: 24px;
-            line-height: 60px;
+            aspect-ratio: 1;
+            background: var(--cell-bg);
+            border-radius: 15px;
+            border: 1px solid var(--glass-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5rem;
+            font-weight: 900;
             cursor: pointer;
             user-select: none;
+            transition: all 0.2s;
+            box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .cell:hover:not(.disabled) {
+            background: var(--cell-hover);
+            transform: translateY(-2px);
+            border-color: rgba(255, 255, 255, 0.3);
+            box-shadow: inset 0 0 15px rgba(255, 255, 255, 0.05);
         }
 
         .cell.disabled {
-            pointer-events: none;
-            background: #ddd;
-        }
-
-        .cell.highlight {
-            background-color: #90ee90;
-            font-weight: bold;
+            cursor: not-allowed;
         }
 
         .cell.p1 {
-            color: red;
+            color: #60a5fa;
+            text-shadow: 0 0 15px rgba(96, 165, 250, 0.5);
         }
 
         .cell.p2 {
-            color: blue;
+            color: #f87171;
+            text-shadow: 0 0 15px rgba(248, 113, 113, 0.5);
         }
 
-        select,
-        button {
-            padding: 8px;
-            font-size: 16px;
-            margin: 5px;
+        .cell.highlight {
+            background: rgba(255, 215, 0, 0.2);
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3), inset 0 0 15px rgba(255, 215, 0, 0.2);
+            animation: pulse-glow 1.5s infinite alternate;
         }
 
-        #status {
-            margin-top: 10px;
-            font-weight: bold;
+        @keyframes pulse-glow {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 215, 0, 0.2), inset 0 0 10px rgba(255, 215, 0, 0.1);
+            }
+
+            100% {
+                box-shadow: 0 0 25px rgba(255, 215, 0, 0.6), inset 0 0 20px rgba(255, 215, 0, 0.4);
+            }
         }
 
         #letterPicker {
-            position: absolute;
+            position: fixed;
             display: none;
-            background: white;
-            border: 2px solid #333;
-            padding: 5px;
-            border-radius: 5px;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+            background: rgba(15, 23, 42, 0.95);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(59, 130, 246, 0.3);
+            z-index: 1000;
+            transform: translate(-50%, -100%);
+            margin-top: -10px;
+            gap: 10px;
         }
 
-        #letterPicker button {
-            margin: 0 5px;
-            font-size: 18px;
-            padding: 5px 10px;
+        /* Small triangle pointer for letter picker */
+        #letterPicker::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-width: 10px 10px 0;
+            border-style: solid;
+            border-color: var(--primary) transparent transparent transparent;
+            display: block;
+            width: 0;
+        }
+
+        .picker-btn {
+            background: var(--cell-bg);
+            border: 1px solid var(--glass-border);
+            color: white;
+            font-size: 1.5rem;
+            font-weight: 800;
+            font-family: 'Outfit', sans-serif;
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .picker-btn:hover {
+            background: var(--primary);
+            border-color: var(--primary);
+            transform: scale(1.1);
         }
     </style>
 </head>
 
 <body>
-    <h1>🎮 Game SOS</h1>
-    <div id="controls">
-        <select id="mode">
-            <option value="2p">2 Player</option>
-            <option value="easy">Solo - Mudah</option>
-            <option value="medium">Solo - Sedang</option>
-            <option value="hard">Solo - Sulit</option>
-        </select>
-        <button onclick="startGame()">Mulai</button>
-        <a href="../aplikasi.html" class="btn btn-outline-secondary btn-back">
-            <i class="fas fa-arrow-left me-2"></i>Kembali
-        </a>
+
+    <a href="../aplikasi.html" class="btn-back">
+        <i class="fas fa-arrow-left me-2"></i>Kembali
+    </a>
+
+    <div class="game-header">
+        <h1>SOS Battle</h1>
+        <p style="color: #94a3b8;">Strategic Board Game</p>
     </div>
-    <div id="board"></div>
-    <div id="status"></div>
-    <div id="scores">
-        <p>Player 1: <span id="score1">0</span> | Player 2 / Bot: <span id="score2">0</span></p>
+
+    <div class="game-container">
+        <div class="controls-wrapper">
+            <select id="mode">
+                <option value="2p">👤 2 Player Mode</option>
+                <option value="easy">🤖 Solo - Easy</option>
+                <option value="medium">🤖 Solo - Medium</option>
+                <option value="hard">🤖 Solo - Hard</option>
+            </select>
+            <button class="btn-start" onclick="startGame()"><i class="fas fa-play me-2"></i>New Game</button>
+        </div>
+
+        <div class="status-panel">
+            <div class="player-score">
+                <span class="player-name">Player 1</span>
+                <span id="score1">0</span>
+            </div>
+            <div class="status-text" id="status">Press New Game</div>
+            <div class="player-score">
+                <span class="player-name" id="p2Name">Player 2</span>
+                <span id="score2">0</span>
+            </div>
+        </div>
+
+        <div id="board"></div>
     </div>
 
     <!-- Letter Picker -->
     <div id="letterPicker">
-        <button onclick="selectLetter('S')">S</button>
-        <button onclick="selectLetter('O')">O</button>
+        <button class="picker-btn" onclick="selectLetter('S')">S</button>
+        <button class="picker-btn" onclick="selectLetter('O')">O</button>
     </div>
 
     <script>
@@ -137,9 +358,12 @@
             score1 = 0;
             score2 = 0;
             highlights = [];
+
+            document.getElementById('p2Name').textContent = isSolo ? 'Bot UI' : 'Player 2';
+
             updateScores();
             renderBoard();
-            updateStatus(`Giliran ${currentPlayer}`);
+            updateStatus(`Turn: <span style="color: #60a5fa">${currentPlayer}</span>`);
         }
 
         function renderBoard() {
@@ -152,8 +376,9 @@
                 if (uniqueHighlights.includes(i)) cell.classList.add('highlight');
                 if (owners[i]) cell.classList.add(owners[i]);
                 cell.textContent = val;
+
                 if (val === '' && !gameOver) {
-                    cell.onclick = (e) => showLetterPicker(i, e);
+                    cell.onclick = (e) => showLetterPicker(cell, i);
                 } else {
                     cell.classList.add('disabled');
                 }
@@ -161,12 +386,16 @@
             });
         }
 
-        function showLetterPicker(index, event) {
+        function showLetterPicker(cellEl, index) {
+            if (isSolo && currentPlayer === 'Bot') return; // Prevent clicking during bot turn
+
             selectedCellIndex = index;
             const picker = document.getElementById('letterPicker');
-            picker.style.left = event.pageX + 'px';
-            picker.style.top = event.pageY + 'px';
-            picker.style.display = 'block';
+
+            const rect = cellEl.getBoundingClientRect();
+            picker.style.left = (rect.left + rect.width / 2) + 'px';
+            picker.style.top = rect.top + 'px';
+            picker.style.display = 'flex';
         }
 
         function selectLetter(letter) {
@@ -177,24 +406,28 @@
             board[index] = letter;
             owners[index] = currentPlayer === 'Player 1' ? 'p1' : 'p2';
             const sosLines = checkSOS(index);
+
             if (sosLines.length > 0) {
                 const flat = sosLines.flat();
                 highlights.push(...flat);
                 if (currentPlayer === 'Player 1') score1 += sosLines.length;
                 else score2 += sosLines.length;
+
                 updateScores();
-                updateStatus(`${currentPlayer} membuat ${sosLines.length} SOS!`);
+                const color = currentPlayer === 'Player 1' ? '#60a5fa' : '#f87171';
+                updateStatus(`<span style="color: ${color}">${currentPlayer}</span> got +${sosLines.length}!`);
                 renderBoard();
                 checkGameOver();
-                if (isSolo && currentPlayer === 'Player 1') return;
+
+                if (isSolo && currentPlayer === 'Player 1' && !gameOver) return; // Keep turn if p1 got SOS
             } else {
                 switchPlayer();
             }
 
             renderBoard();
 
-            if (isSolo && currentPlayer === 'Bot') {
-                setTimeout(botMove, 500);
+            if (isSolo && currentPlayer === 'Bot' && !gameOver) {
+                setTimeout(botMove, 700);
             }
         }
 
@@ -202,27 +435,31 @@
             currentPlayer = isSolo
                 ? (currentPlayer === 'Player 1' ? 'Bot' : 'Player 1')
                 : (currentPlayer === 'Player 1' ? 'Player 2' : 'Player 1');
-            updateStatus(`Giliran ${currentPlayer}`);
+
+            const color = currentPlayer === 'Player 1' ? '#60a5fa' : (isSolo ? '#f87171' : '#f87171');
+            updateStatus(`Turn: <span style="color: ${color}">${currentPlayer}</span>`);
         }
 
         function updateStatus(msg) {
-            document.getElementById('status').textContent = msg;
+            document.getElementById('status').innerHTML = msg;
         }
 
         function updateScores() {
             document.getElementById('score1').textContent = score1;
             document.getElementById('score2').textContent = score2;
         }
+
         function checkGameOver() {
             if (!board.includes('')) {
                 gameOver = true;
-                let message = 'Game Over! ';
+                let message = '';
                 if (score1 > score2) {
-                    message += 'Player 1 menang! 🎉';
+                    message = '<span style="color: #60a5fa; font-size: 1.5rem">Player 1 Wins! 🏆</span>';
                 } else if (score2 > score1) {
-                    message += (isSolo ? 'Bot' : 'Player 2') + ' menang! 🎉';
+                    const winner = isSolo ? 'Bot' : 'Player 2';
+                    message = `<span style="color: #f87171; font-size: 1.5rem">${winner} Wins! 🎲</span>`;
                 } else {
-                    message += 'Seri! 🤝';
+                    message = '<span style="color: #fde047; font-size: 1.5rem">It\'s a Draw! 🤝</span>';
                 }
                 updateStatus(message);
                 document.getElementById('letterPicker').style.display = 'none';
@@ -230,21 +467,31 @@
         }
 
         function botMove() {
+            if (gameOver) return;
+
             let move;
             const empty = board.map((v, i) => v === '' ? i : null).filter(v => v !== null);
-            move = findBestMove() || empty[Math.floor(Math.random() * empty.length)];
+
+            // Basic AI
+            move = findBestMove();
+            if (move === null) {
+                move = empty[Math.floor(Math.random() * empty.length)];
+            }
+
             board[move] = Math.random() < 0.5 ? 'S' : 'O';
             owners[move] = 'p2';
+
             const sosLines = checkSOS(move);
+
             if (sosLines.length > 0) {
                 const flat = sosLines.flat();
                 highlights.push(...flat);
                 score2 += sosLines.length;
                 updateScores();
-                updateStatus(`Bot membuat ${sosLines.length} SOS!`);
+                updateStatus(`<span style="color: #f87171">Bot</span> got +${sosLines.length}!`);
                 renderBoard();
                 checkGameOver();
-                setTimeout(botMove, 500);
+                if (!gameOver) setTimeout(botMove, 800); // BOT keeps turn
             } else {
                 switchPlayer();
                 renderBoard();
@@ -285,19 +532,19 @@
             const found = [];
 
             for (let [dx, dy] of directions) {
+                // Pattern: S O S (O in middle)
                 const r1 = row - dx, c1 = col - dy;
                 const r2 = row + dx, c2 = col + dy;
                 const i1 = getIndex(r1, c1);
                 const i2 = getIndex(r2, c2);
 
-                // Pola: S O S (O di tengah)
                 if (i1 !== null && i2 !== null) {
                     if (board[i1] === 'S' && board[index] === 'O' && board[i2] === 'S') {
                         found.push([i1, index, i2]);
                     }
                 }
 
-                // Pola: S O S (S di akhir)
+                // Pattern: S O S (S at end)
                 const r3 = row - 2 * dx, c3 = col - 2 * dy;
                 const i3 = getIndex(r3, c3);
                 if (i3 !== null && i1 !== null) {
@@ -306,7 +553,7 @@
                     }
                 }
 
-                // Pola: S O S (S di awal)
+                // Pattern: S O S (S at start)
                 const r4 = row + 2 * dx, c4 = col + 2 * dy;
                 const i4 = getIndex(r4, c4);
                 if (i4 !== null && i2 !== null) {
@@ -315,13 +562,10 @@
                     }
                 }
             }
-
             return found;
         }
 
-      
-
-        // Tutup popup jika klik di luar
+        // Close popup if clicked outside
         document.addEventListener('click', function (e) {
             const picker = document.getElementById('letterPicker');
             if (!picker.contains(e.target) && !e.target.classList.contains('cell')) {

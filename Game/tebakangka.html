@@ -2,123 +2,417 @@
 <html lang="id">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Tebak Angka!</title>
+  <title>Tebak Angka! - Varchar Games</title>
 
   <!-- Bootstrap CSS -->
   <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
   <!-- Font Awesome -->
-  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
 
   <style>
+    :root {
+      --bg-gradient-1: #4f46e5;
+      --bg-gradient-2: #ec4899;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #fefae0;
-      padding-top: 40px;
-    }
-
-    h1 {
-      color: #333;
-      margin-bottom: 20px;
-    }
-
-    .game-box {
-      background: #fff;
-      border-radius: 10px;
-      padding: 30px;
-      max-width: 400px;
-      margin: auto;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    }
-
-    #message {
-      margin-top: 20px;
-      font-size: 1.2rem;
-    }
-
-    #attempts {
-      margin-top: 10px;
-      color: #555;
-    }
-
-    .btn-guess {
-      background-color: #2196f3;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
       color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      margin: 0;
     }
 
-    .btn-guess:hover {
-      background-color: #0b7dda;
+    /* Background Animation */
+    ul.circles {
+      margin: 0;
+      padding: 0;
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 0;
     }
 
-    .btn-back {
+    ul.circles li {
+      position: absolute;
+      display: block;
+      list-style: none;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      animation: animate 25s linear infinite;
+      bottom: -150px;
+      border-radius: 50%;
+    }
+
+    ul.circles li:nth-child(1) {
+      left: 25%;
+      width: 80px;
+      height: 80px;
+      animation-delay: 0s;
+    }
+
+    ul.circles li:nth-child(2) {
+      left: 10%;
+      width: 20px;
+      height: 20px;
+      animation-delay: 2s;
+      animation-duration: 12s;
+    }
+
+    ul.circles li:nth-child(3) {
+      left: 70%;
+      width: 20px;
+      height: 20px;
+      animation-delay: 4s;
+    }
+
+    ul.circles li:nth-child(4) {
+      left: 40%;
+      width: 60px;
+      height: 60px;
+      animation-delay: 0s;
+      animation-duration: 18s;
+    }
+
+    ul.circles li:nth-child(5) {
+      left: 65%;
+      width: 20px;
+      height: 20px;
+      animation-delay: 0s;
+    }
+
+    ul.circles li:nth-child(6) {
+      left: 75%;
+      width: 110px;
+      height: 110px;
+      animation-delay: 3s;
+    }
+
+    @keyframes animate {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    .btn-back-link {
       position: absolute;
       top: 20px;
       left: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .btn-back-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(-5px);
+      color: white;
+    }
+
+    .game-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 50px 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      z-index: 1;
+      position: relative;
+    }
+
+    .icon-dice {
+      font-size: 4rem;
+      margin-bottom: 20px;
+      color: #ffd700;
+      text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% {
+        transform: scale(1);
+      }
+
+      50% {
+        transform: scale(1.1);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 10px;
+      letter-spacing: -1px;
+    }
+
+    p.subtitle {
+      color: #e2e8f0;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
+    }
+
+    .input-wrapper {
+      position: relative;
+      margin-bottom: 20px;
+    }
+
+    input[type="number"] {
+      width: 100%;
+      padding: 20px;
+      font-size: 2rem;
+      font-weight: 800;
+      text-align: center;
+      border-radius: 20px;
+      border: 2px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0, 0, 0, 0.2);
+      color: white;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    input[type="number"]::placeholder {
+      color: rgba(255, 255, 255, 0.3);
+      font-weight: 400;
+      font-size: 1.2rem;
+    }
+
+    input[type="number"]:focus {
+      border-color: #ffd700;
+      box-shadow: 0 0 0 4px rgba(255, 215, 0, 0.2);
+      background: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Hide arrows from number input */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      appearance: none;
+      margin: 0;
+    }
+
+    input[type=number] {
+      -moz-appearance: textfield;
+    }
+
+    .btn-guess {
+      width: 100%;
+      padding: 18px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #0f172a;
+      background: white;
+      border: none;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-guess:hover {
+      transform: translateY(-5px) scale(1.02);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+      background: #f8fafc;
+    }
+
+    .btn-guess:disabled {
+      background: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    #message {
+      margin-top: 25px;
+      font-size: 1.4rem;
+      font-weight: 800;
+      min-height: 40px;
+      transition: all 0.3s;
+    }
+
+    #attempts {
+      margin-top: 15px;
+      font-size: 1rem;
+      color: #94a3b8;
+      font-weight: 600;
+      background: rgba(0, 0, 0, 0.3);
+      display: inline-block;
+      padding: 5px 15px;
+      border-radius: 50px;
+    }
+
+    .clue-high {
+      color: #fecaca;
+      text-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+    }
+
+    .clue-low {
+      color: #fef08a;
+      text-shadow: 0 0 10px rgba(234, 179, 8, 0.5);
+    }
+
+    .clue-win {
+      color: #86efac;
+      text-shadow: 0 0 15px rgba(34, 197, 94, 0.8);
+      font-size: 1.8rem !important;
+    }
+
+    .btn-reset {
+      margin-top: 20px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 50px;
+      font-weight: 600;
+      cursor: pointer;
+      display: none;
+      transition: all 0.2s;
+    }
+
+    .btn-reset:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
   </style>
 </head>
 
 <body>
-  <a class="btn btn-outline-primary btn-back" href="../aplikasi.html">
+
+  <!-- Background animation -->
+  <ul class="circles">
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+    <li></li>
+  </ul>
+
+  <a class="btn-back-link" href="../aplikasi.html">
     <i class="fas fa-arrow-left me-2"></i>Kembali
   </a>
 
-  <div class="container text-center">
-    <h1>🎲 Tebak Angka 1 - 100</h1>
+  <div class="game-container">
+    <div class="icon-dice"><i class="fas fa-dice"></i></div>
+    <h1>Tebak Angka</h1>
+    <p class="subtitle">Sistem telah memilih angka rahasia antara <strong>1 hingga 100</strong>. Mampukah kamu
+      menebaknya?</p>
 
-    <div class="game-box mt-4">
-      <p>Masukkan tebakanmu:</p>
-      <div class="input-group justify-content-center mb-3">
-        <input type="number" id="guess" class="form-control w-50" min="1" max="100" />
-        <button id="guess-btn" class="btn btn-guess ms-2">Tebak</button>
-      </div>
-      <div id="message" class="fw-bold"></div>
-      <div id="attempts"></div>
+    <div class="input-wrapper">
+      <input type="number" id="guess" placeholder="00" min="1" max="100" autocomplete="off" />
     </div>
+
+    <button id="guess-btn" class="btn-guess">Tebak Sekarang!</button>
+
+    <div id="message"></div>
+    <div id="attempts" style="display: none;">Level: 0 attempt</div>
+
+    <button id="reset-btn" class="btn-reset" onclick="resetGame()"><i class="fas fa-redo me-2"></i>Main Lagi</button>
   </div>
 
-  <!-- Bootstrap JS -->
   <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
-
   <script>
     let target = Math.floor(Math.random() * 100) + 1;
     let attempts = 0;
 
-    document.getElementById('guess-btn').addEventListener('click', checkGuess);
+    const guessInput = document.getElementById('guess');
+    const guessBtn = document.getElementById('guess-btn');
+    const resetBtn = document.getElementById('reset-btn');
+    const message = document.getElementById('message');
+    const attemptsDisplay = document.getElementById('attempts');
+
+    guessBtn.addEventListener('click', checkGuess);
+    guessInput.addEventListener('keypress', function (e) {
+      if (e.key === 'Enter') checkGuess();
+    });
 
     function checkGuess() {
-      const guess = parseInt(document.getElementById('guess').value);
-      const message = document.getElementById('message');
-      const attemptsDisplay = document.getElementById('attempts');
+      const gValue = guessInput.value;
+      if (!gValue) return;
+
+      const guess = parseInt(gValue);
 
       if (isNaN(guess) || guess < 1 || guess > 100) {
-        message.textContent = "⚠️ Masukkan angka antara 1 dan 100!";
-        message.style.color = "#d9534f";
+        message.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Masukkan 1 - 100!';
+        message.className = "clue-high";
         return;
       }
 
       attempts++;
+      attemptsDisplay.style.display = 'inline-block';
+      attemptsDisplay.textContent = `Percobaan ke-${attempts}`;
+
       if (guess === target) {
-        message.textContent = `🎉 Benar! Angkanya adalah ${target}.`;
-        message.style.color = "#28a745";
-        attemptsDisplay.textContent = `Jumlah percobaan: ${attempts}`;
-        document.getElementById('guess-btn').disabled = true;
+        message.innerHTML = `<i class="fas fa-trophy mb-2 d-block"></i>JACKPOT!<br>Angkanya adalah ${target}`;
+        message.className = "clue-win";
+        guessBtn.disabled = true;
+        guessInput.disabled = true;
+        resetBtn.style.display = 'inline-block';
       } else if (guess < target) {
-        message.textContent = "📉 Terlalu rendah!";
-        message.style.color = "#ffc107";
+        message.innerHTML = '<i class="fas fa-arrow-up"></i> Terlalu KECIL!';
+        message.className = "clue-low";
+        guessInput.value = '';
+        guessInput.focus();
       } else {
-        message.textContent = "📈 Terlalu tinggi!";
-        message.style.color = "#ffc107";
+        message.innerHTML = '<i class="fas fa-arrow-down"></i> Terlalu BESAR!';
+        message.className = "clue-high";
+        guessInput.value = '';
+        guessInput.focus();
       }
     }
+
+    function resetGame() {
+      target = Math.floor(Math.random() * 100) + 1;
+      attempts = 0;
+      guessInput.value = '';
+      guessInput.disabled = false;
+      guessBtn.disabled = false;
+      message.innerHTML = '';
+      attemptsDisplay.style.display = 'none';
+      resetBtn.style.display = 'none';
+      guessInput.focus();
+    }
+
+    // Auto focus on load
+    window.onload = () => guessInput.focus();
   </script>
 </body>
 

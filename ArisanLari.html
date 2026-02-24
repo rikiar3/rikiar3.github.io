@@ -1,102 +1,292 @@
 <!DOCTYPE html>
 <html lang="id">
+
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>🏃‍♂️ Siapa Cepat Dia Dapat</title>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Siapa Cepat Dia Dapat - Balapan Rezeki</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+
   <style>
+    :root {
+      --bg-color: #f1f5f9;
+      --card-bg: #ffffff;
+      --primary: #22c55e;
+      --text-main: #0f172a;
+      --track-bg: #e2e8f0;
+      --finish-line: #ef4444;
+    }
+
     body {
-      font-family: sans-serif;
-      background: #f0f0f0;
-      padding: 20px;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
+      background-image: linear-gradient(135deg, rgba(34, 197, 94, 0.05) 0%, transparent 100%);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    .race-dashboard {
+      background: var(--card-bg);
+      border-radius: 24px;
+      padding: 40px;
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+      max-width: 800px;
+      width: 100%;
       text-align: center;
+      margin-bottom: 30px;
+    }
+
+    h2 {
+      font-weight: 900;
+      font-size: 2.5rem;
+      text-transform: uppercase;
+      letter-spacing: -1px;
+      background: linear-gradient(to right, #22c55e, #10b981);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #64748b;
+      font-size: 1.1rem;
+      margin-bottom: 30px;
     }
 
     textarea {
-      width: 300px;
-      height: 100px;
-      margin-bottom: 10px;
+      width: 100%;
+      height: 120px;
+      border-radius: 16px;
+      border: 2px solid #cbd5e1;
+      padding: 15px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      resize: none;
+      transition: all 0.3s;
+      background: #f8fafc;
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.1);
+    }
+
+    .action-group {
+      display: flex;
+      gap: 15px;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .btn-race {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-race:hover {
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 15px 25px rgba(34, 197, 94, 0.4);
+    }
+
+    .btn-race:active {
+      transform: scale(0.98);
+    }
+
+    .btn-back {
+      background: white;
+      color: #475569;
+      border: 2px solid #cbd5e1;
+      border-radius: 50px;
+      padding: 15px 30px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+    }
+
+    .btn-back:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+      border-color: #94a3b8;
+    }
+
+    /* Track Styles */
+    #raceArea {
+      width: 100%;
+      max-width: 800px;
     }
 
     .track {
       position: relative;
-      height: 40px;
-      margin: 10px auto;
-      background: #e0e0e0;
-      border-radius: 20px;
-      width: 90%;
+      height: 60px;
+      margin: 15px auto;
+      background: var(--track-bg);
+      border-radius: 30px;
+      width: 100%;
       overflow: hidden;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+      border: 2px solid #fff;
+    }
+
+    /* Track lines */
+    .track::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background-image: linear-gradient(90deg, #cbd5e1 50%, transparent 50%);
+      background-size: 20px 100%;
+      transform: translateY(-50%);
+      z-index: 0;
+      opacity: 0.5;
     }
 
     .runner {
       position: absolute;
       top: 5px;
-      left: 0;
-      transform: translateX(0);
-      height: 30px;
-      line-height: 30px;
-      border-radius: 15px;
+      left: 5px;
+      height: 50px;
+      line-height: 50px;
+      border-radius: 25px;
       color: white;
-      font-weight: bold;
+      font-weight: 800;
       text-align: center;
-      padding: 0 10px;
+      padding: 0 15px;
       white-space: nowrap;
-      min-width: 60px;
-      max-width: 60px;
+      min-width: 80px;
+      max-width: 80px;
       overflow: hidden;
+      z-index: 2;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+      transition: transform 0.05s linear;
     }
 
     .finish-line {
       position: absolute;
       top: 0;
-      width: 5px;
+      right: 90px;
+      width: 12px;
       height: 100%;
-      background: red;
-      right: 50px;
+      background-image: repeating-linear-gradient(45deg, #000 0, #000 10px, #fff 10px, #fff 20px);
+      z-index: 1;
+      border-left: 2px solid var(--finish-line);
+      box-shadow: -5px 0 10px rgba(239, 68, 68, 0.2);
     }
 
-    button, .btn {
-      padding: 10px 20px;
-      margin: 5px;
-      font-size: 1em;
-      cursor: pointer;
+    .winner-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(5px);
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
     }
 
-    .btn-primary {
-      background: #007bff;
-      color: white;
-      border: none;
-      border-radius: 5px;
+    .winner-overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .winner-card {
+      background: white;
+      padding: 40px;
+      border-radius: 30px;
+      text-align: center;
+      transform: scale(0.8);
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .winner-overlay.active .winner-card {
+      transform: scale(1);
+    }
+
+    .winner-name {
+      font-size: 3rem;
+      font-weight: 900;
+      color: var(--primary);
+      margin: 20px 0;
     }
   </style>
 </head>
+
 <body>
 
-  <h2>🏃‍♂️ Siapa Cepat Dia Dapat</h2>
-  <p>Selamat datang di Lomba Rezeki, arisan paling seru dengan gaya balapan! Siapa yang paling cepat menyentuh garis finish, dia yang menang!</p>
-  <p>Masukkan nama-nama peserta (satu per baris):</p>
+  <div class="race-dashboard">
+    <h2><i class="fas fa-flag-checkered me-2 text-dark"></i> Siapa Cepat Dia Dapat</h2>
+    <p>Lomba Rezeki Ekstrim! Siapa yang menyentuh garis finish pertama, dia pemenangnya!</p>
 
-  <textarea id="nameList" placeholder="Contoh:\nRina\nBudi\nSari\nDedi"></textarea><br>
-  <button onclick="startRace()">Mulai Lomba</button>
-  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+    <textarea id="nameList"
+      placeholder="Ketik nama pelari di sini (contoh: Rina, Budi)&#10;1 Baris = 1 Pelari"></textarea>
+
+    <div class="action-group">
+      <button class="btn-race" onclick="startRace()"><i class="fas fa-play me-2"></i>Mulai Balapan</button>
+      <a class="btn-back" href="aplikasi.html">Kembali</a>
+    </div>
+  </div>
 
   <div id="raceArea"></div>
+
+  <div class="winner-overlay" id="winnerOverlay">
+    <div class="winner-card">
+      <i class="fas fa-trophy fa-4x text-warning"></i>
+      <div class="winner-name" id="winnerText">Nama Pemenang</div>
+      <button class="btn-race" onclick="closeWinnerOverlay()">Lanjutkan</button>
+    </div>
+  </div>
 
   <script>
     let runners = [];
     let raceInterval;
     let winnerDeclared = false;
+    let currentWinner = null;
 
-    function getColor(index, total) {
-      const hue = index * (360 / total);
-      return `hsl(${hue}, 70%, 60%)`;
+    const modernColors = ["#ef4444", "#3b82f6", "#f59e0b", "#8b5cf6", "#ec4899", "#14b8a6", "#6366f1"];
+
+    function getColor(index) {
+      return modernColors[index % modernColors.length];
     }
 
     function startRace() {
       const input = document.getElementById("nameList").value.trim();
       const names = input.split("\n").map(n => n.trim()).filter(n => n);
       if (names.length < 2) {
-        alert("Masukkan minimal 2 nama!");
+        alert("Minimal butuh 2 pembalap untuk lomba!");
         return;
       }
 
@@ -104,6 +294,7 @@
       document.getElementById("raceArea").innerHTML = "";
       runners = [];
       winnerDeclared = false;
+      currentWinner = null;
 
       names.forEach((fullName, i) => {
         const track = document.createElement("div");
@@ -115,7 +306,7 @@
 
         const runner = document.createElement("div");
         runner.className = "runner";
-        runner.style.backgroundColor = getColor(i, names.length);
+        runner.style.backgroundColor = getColor(i);
         runner.textContent = fullName.length > 5 ? fullName.slice(0, 5) + "…" : fullName;
 
         track.appendChild(runner);
@@ -124,33 +315,47 @@
         runners.push({ fullName, element: runner, position: 0, track });
       });
 
+      // countdown or delay before race
       raceInterval = setInterval(() => {
         runners.forEach(runner => {
           if (winnerDeclared) return;
 
-          const step = Math.random() * 5 + 1;
+          // random speed with occasional bursts
+          const burst = Math.random() > 0.95 ? 15 : 0;
+          const step = Math.random() * 6 + 1.5 + burst;
           runner.position += step;
           runner.element.style.transform = `translateX(${runner.position}px)`;
 
-          const finishX = runner.track.offsetWidth - 50;
-          const virtualRunnerLength = 60;
+          const finishX = runner.track.offsetWidth - 90; // finish line pos
+          const virtualRunnerLength = 80;
 
-          if (runner.position + virtualRunnerLength >= finishX) {
+          if (runner.position + virtualRunnerLength >= finishX && !winnerDeclared) {
             winnerDeclared = true;
+            currentWinner = runner.fullName;
             clearInterval(raceInterval);
 
             setTimeout(() => {
-              const confirmDelete = confirm(`🎉 Pemenangnya: ${runner.fullName}\n\nHapus dari daftar?`);
-              if (confirmDelete) {
-                const updated = runners.filter(r => r.fullName !== runner.fullName).map(r => r.fullName);
-                document.getElementById("nameList").value = updated.join("\n");
-              }
-            }, 300);
+              showWinner(runner.fullName);
+            }, 500);
           }
         });
-      }, 50);
+      }, 40);
+    }
+
+    function showWinner(name) {
+      document.getElementById('winnerText').textContent = name;
+      document.getElementById('winnerOverlay').classList.add('active');
+    }
+
+    function closeWinnerOverlay() {
+      document.getElementById('winnerOverlay').classList.remove('active');
+      if (confirm(`Hapus ${currentWinner} dari daftar peserta balapan berikutnya?`)) {
+        const input = document.getElementById("nameList").value;
+        const names = input.split("\n").map(n => n.trim()).filter(n => n && n !== currentWinner);
+        document.getElementById("nameList").value = names.join("\n");
+      }
     }
   </script>
-
 </body>
+
 </html>

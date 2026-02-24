@@ -1,84 +1,202 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kocokan Arisan</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 20px;
-      background: #f0f8ff;
-    }
-    h1 {
-      font-size: 28px;
-    }
-    textarea {
-      width: 90%;
-      height: 150px;
-      font-size: 18px;
-      padding: 10px;
-      margin-bottom: 15px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-    }
-    button {
-      padding: 15px 30px;
-      font-size: 18px;
-      margin: 10px;
-      border: none;
-      border-radius: 8px;
-      background-color: #007bff;
-      color: white;
-      cursor: pointer;
-    }
-    button:hover {
-      background-color: #0056b3;
-    }
-    #result {
-      font-size: 26px;
-      font-weight: bold;
-      margin-top: 25px;
-      color: #2e8b57;
-    }
-    #rolling {
-      font-size: 22px;
-      color: #555;
-      margin-top: 15px;
-      height: 35px;
-    }
-  </style>
 
-    <!-- Required meta tags -->
+<head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Nama Siapa Hari Ini? - Arisan Mod</title>
 
   <!-- Bootstrap CSS -->
   <link href="bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
 
-  <!-- my fons  -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-  <!-- my CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
 
-  <!-- font fontawesome -->
+  <!-- Font Awesome -->
   <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg-gradient-1: #ff9a9e;
+      --bg-gradient-2: #fecfef;
+      --card-bg: rgba(255, 255, 255, 0.85);
+      --text-main: #4a4a4a;
+      --accent: #ff4757;
+    }
+
+    body {
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-main);
+      padding: 20px;
+    }
+
+    .app-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-radius: 30px;
+      padding: 40px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.1);
+      max-width: 600px;
+      width: 100%;
+      text-align: center;
+      position: relative;
+    }
+
+    .title-icon {
+      font-size: 3rem;
+      margin-bottom: 10px;
+      color: var(--accent);
+      animation: bounce 2s infinite;
+    }
+
+    @keyframes bounce {
+
+      0%,
+      20%,
+      50%,
+      80%,
+      100% {
+        transform: translateY(0);
+      }
+
+      40% {
+        transform: translateY(-15px);
+      }
+
+      60% {
+        transform: translateY(-7px);
+      }
+    }
+
+    h1 {
+      font-weight: 800;
+      color: #2f3542;
+      margin-bottom: 10px;
+    }
+
+    p.subtitle {
+      color: #747d8c;
+      font-size: 1.1rem;
+      margin-bottom: 25px;
+    }
+
+    textarea {
+      width: 100%;
+      height: 150px;
+      border-radius: 20px;
+      border: 2px solid #dfe4ea;
+      padding: 15px;
+      font-size: 1rem;
+      font-family: 'Outfit', sans-serif;
+      resize: none;
+      transition: all 0.3s;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 15px rgba(255, 71, 87, 0.2);
+    }
+
+    .btn-action {
+      background: linear-gradient(45deg, #ff4757, #ff6b81);
+      color: white;
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
+      font-size: 1.2rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 10px 20px rgba(255, 71, 87, 0.3);
+      margin-top: 20px;
+      width: 100%;
+    }
+
+    .btn-action:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 25px rgba(255, 71, 87, 0.4);
+    }
+
+    .btn-back-link {
+      display: inline-block;
+      margin-top: 20px;
+      color: #747d8c;
+      text-decoration: none;
+      font-weight: 600;
+      transition: color 0.3s;
+    }
+
+    .btn-back-link:hover {
+      color: var(--accent);
+    }
+
+    #result-box {
+      margin-top: 30px;
+      min-height: 80px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #rolling {
+      font-size: 2rem;
+      font-weight: 800;
+      color: #a4b0be;
+      letter-spacing: 2px;
+    }
+
+    #result {
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: #2ed573;
+      text-shadow: 0 4px 10px rgba(46, 213, 115, 0.3);
+      animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: scale(0.5);
+      }
+
+      100% {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+  </style>
 </head>
+
 <body>
 
-  <h1>🎉 Nama Siapa Hari Ini?</h1>
-  <p>Selamat datang di Kocok Nama!, aplikasi arisan sederhana yang cepat dan praktis. Masukkan nama, klik tombol, dan biarkan keberuntungan bicara!
-</p>
-  <p style="font-size: 18px;">Masukkan nama-nama peserta (satu per baris):</p>
-  <textarea id="nameList" placeholder="Contoh:\nRina\nBudi\nSari\nDedi"></textarea><br>
-  <button onclick="startDraw()">Mulai Kocok</button>
-  <a class="btn btn-primary" href="aplikasi.html">Kembali</a>
+  <div class="app-container">
+    <div class="title-icon"><i class="fas fa-gift"></i></div>
+    <h1>Kocok Nama!</h1>
+    <p class="subtitle">Sistem Arisan Modern. Masukkan nama & biarkan takdir memilih.</p>
 
-  <div id="rolling"></div>
-  <div id="result"></div>
+    <textarea id="nameList"
+      placeholder="Ketik nama di sini (satu per baris)&#10;Misal:&#10;Andi&#10;Budi&#10;Citra"></textarea>
+
+    <button class="btn-action" onclick="startDraw()"><i class="fas fa-dice me-2"></i>Mulai Kocok</button>
+
+    <div id="result-box">
+      <div id="rolling"></div>
+      <div id="result"></div>
+    </div>
+
+    <a class="btn-back-link" href="aplikasi.html"><i class="fas fa-arrow-left me-1"></i> Kembali ke Ekosistem</a>
+  </div>
 
   <script>
     let names = [];
@@ -87,42 +205,50 @@
     function startDraw() {
       const input = document.getElementById("nameList").value.trim();
       if (!input) {
-        alert("Masukkan minimal satu nama!");
+        alert("Oops! Masukkan minimal satu nama dulu ya.");
         return;
       }
 
       names = input.split("\n").map(n => n.trim()).filter(n => n);
       if (names.length === 0) {
-        alert("Daftar nama kosong!");
+        alert("Daftar nama masih kosong!");
         return;
       }
 
       const rollingDiv = document.getElementById("rolling");
       const resultDiv = document.getElementById("result");
+      const btn = document.querySelector('.btn-action');
+
       resultDiv.textContent = "";
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Mengocok...';
+
       let currentIndex = 0;
 
       interval = setInterval(() => {
         rollingDiv.textContent = names[currentIndex];
         currentIndex = (currentIndex + 1) % names.length;
-      }, 100);
+      }, 80);
 
       setTimeout(() => {
         clearInterval(interval);
         const winner = names[Math.floor(Math.random() * names.length)];
         rollingDiv.textContent = "";
-        resultDiv.textContent = `🎉 Pemenangnya: ${winner}`;
+        resultDiv.textContent = `🎉 ${winner} 🎉`;
+
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-dice me-2"></i>Kocok Lagi';
 
         setTimeout(() => {
-          const confirmDelete = confirm(`Apakah ingin menghapus ${winner} dari daftar?`);
-          if (confirmDelete) {
+          if (confirm(`Selamat untuk ${winner}!\nApakah ingin menghapus nama ini dari daftar?`)) {
             names = names.filter(n => n !== winner);
             document.getElementById("nameList").value = names.join("\n");
           }
-        }, 500);
-      }, 5000);
+        }, 800);
+      }, 3000);
     }
   </script>
 
 </body>
+
 </html>

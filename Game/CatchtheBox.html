@@ -2,111 +2,262 @@
 <html lang="en">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-  <title>Catch the Box!</title>
+  <title>Catch the Box! - Varchar Games</title>
 
   <!-- Bootstrap CSS -->
   <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
   <!-- Font Awesome -->
-  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
-
-  <!-- Custom CSS -->
-  <link rel="stylesheet" href="style.css" />
+  <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
 
   <style>
+    :root {
+      --bg-gradient-1: #8b5cf6;
+      --bg-gradient-2: #3b82f6;
+      --card-bg: rgba(255, 255, 255, 0.1);
+      --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
     body {
-      font-family: 'Roboto', sans-serif;
-      background: #f0f8ff;
-      padding-top: 40px;
+      font-family: 'Outfit', sans-serif;
+      background: linear-gradient(135deg, var(--bg-gradient-1), var(--bg-gradient-2));
+      color: white;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      margin: 0;
+    }
+
+    .btn-back-link {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1.1rem;
+      background: rgba(255, 255, 255, 0.15);
+      padding: 10px 20px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .btn-back-link:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: translateX(-5px);
+      color: white;
+    }
+
+    .game-container {
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
     }
 
     h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      margin-bottom: 20px;
+      letter-spacing: -1px;
+      text-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .info-panel {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(0, 0, 0, 0.2);
+      padding: 15px 30px;
+      border-radius: 20px;
       margin-bottom: 30px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
     }
 
-    #game-container {
+    .info-box {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .info-label {
+      font-size: 0.9rem;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #ffd700;
+      line-height: 1;
+      text-shadow: 0 0 10px rgba(255, 215, 0, 0.5);
+    }
+
+    #game-area {
       position: relative;
-      width: 300px;
-      height: 300px;
-      margin: 0 auto 20px;
-      background: #e0e0e0;
-      border: 2px solid #333;
-      border-radius: 10px;
+      width: 100%;
+      height: 350px;
+      background: rgba(15, 23, 42, 0.4);
+      border: 2px solid rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
       overflow: hidden;
+      margin-bottom: 30px;
+      box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+      cursor: crosshair;
     }
 
-    #box {
+    #target-box {
       position: absolute;
-      width: 40px;
-      height: 40px;
-      background: crimson;
-      border-radius: 5px;
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #fef08a, #f59e0b);
+      border-radius: 12px;
       cursor: pointer;
       display: none;
+      box-shadow: 0 0 20px rgba(245, 158, 11, 0.6), inset 0 0 10px rgba(255, 255, 255, 0.8);
+      border: 2px solid white;
+      transition: transform 0.1s;
     }
 
-    #info p {
+    #target-box:active {
+      transform: scale(0.8);
+    }
+
+    .btn-start {
+      background: white;
+      color: var(--bg-gradient-1);
+      border: none;
+      border-radius: 50px;
+      padding: 15px 40px;
       font-size: 1.2rem;
-      margin: 0.5rem 0;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
     }
 
-    #start-btn {
-      font-size: 1rem;
-      padding: 10px 20px;
+    .btn-start:hover {
+      transform: translateY(-5px) scale(1.05);
+      box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
     }
 
-    .btn-back {
-      margin-top: 20px;
+    .btn-start:disabled {
+      background: rgba(255, 255, 255, 0.3);
+      color: rgba(255, 255, 255, 0.5);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Overlay for Game Over */
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(5px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .overlay.active {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .overlay h2 {
+      font-size: 2.5rem;
+      color: white;
+      font-weight: 900;
+      margin-bottom: 5px;
+    }
+
+    .overlay p {
+      color: #fca5a5;
+      font-size: 1.2rem;
     }
   </style>
 </head>
 
 <body>
-  <div class="container text-center">
-    <h1>🎯 Catch the Box!</h1>
 
-    <div id="game-container">
-      <div id="box"></div>
+  <a class="btn-back-link" href="../aplikasi.html">
+    <i class="fas fa-arrow-left me-2"></i>Kembali
+  </a>
+
+  <div class="game-container">
+    <h1><i class="fas fa-crosshairs me-2 text-warning"></i> Catch the Box</h1>
+
+    <div class="info-panel">
+      <div class="info-box text-start">
+        <span class="info-label"><i class="fas fa-clock me-1"></i> Time Left</span>
+        <span class="info-value" id="time">30</span>
+      </div>
+      <div class="info-box text-end">
+        <span class="info-label">Score <i class="fas fa-star ms-1"></i></span>
+        <span class="info-value" id="score">0</span>
+      </div>
     </div>
 
-    <div id="info" class="my-3">
-      <p>⏱️ Time: <span id="time">30</span>s</p>
-      <p>🏆 Score: <span id="score">0</span></p>
+    <div id="game-area">
+      <div id="target-box"></div>
+
+      <div class="overlay" id="gameOverOverlay">
+        <h2>Time's Up!</h2>
+        <p>Final Score: <strong id="finalScore" class="text-white fs-3">0</strong></p>
+      </div>
     </div>
 
-    <button id="start-btn" class="btn btn-primary mb-3">Start Game</button>
-    <br />
-    <a href="../aplikasi.html" class="btn btn-outline-secondary btn-back">
-      <i class="fas fa-arrow-left me-2"></i>Kembali
-    </a>
+    <button id="start-btn" class="btn-start"><i class="fas fa-play me-2"></i> Start Game</button>
   </div>
 
-  <!-- Bootstrap JS -->
-  <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
-
   <script>
-    const box = document.getElementById('box');
+    const box = document.getElementById('target-box');
     const scoreDisplay = document.getElementById('score');
     const timeDisplay = document.getElementById('time');
     const startBtn = document.getElementById('start-btn');
-    const gameContainer = document.getElementById('game-container');
+    const gameArea = document.getElementById('game-area');
+    const gameOverOverlay = document.getElementById('gameOverOverlay');
+    const finalScoreDisplay = document.getElementById('finalScore');
 
     let score = 0;
     let timeLeft = 30;
     let gameInterval;
     let moveInterval;
+    let currentSpeed = 1000;
 
     function getRandomPosition() {
-      const maxX = gameContainer.clientWidth - box.clientWidth;
-      const maxY = gameContainer.clientHeight - box.clientHeight;
-      const x = Math.floor(Math.random() * maxX);
-      const y = Math.floor(Math.random() * maxY);
+      // 50px is the box width/height
+      const maxX = gameArea.clientWidth - 60;
+      const maxY = gameArea.clientHeight - 60;
+      const x = Math.max(10, Math.floor(Math.random() * maxX));
+      const y = Math.max(10, Math.floor(Math.random() * maxY));
       return { x, y };
     }
 
@@ -120,31 +271,59 @@
     function startGame() {
       score = 0;
       timeLeft = 30;
+      currentSpeed = 1000;
       scoreDisplay.textContent = score;
       timeDisplay.textContent = timeLeft;
       startBtn.disabled = true;
+      gameOverOverlay.classList.remove('active');
+
+      clearInterval(gameInterval);
+      clearInterval(moveInterval);
 
       moveBox();
-      moveInterval = setInterval(moveBox, 1000);
+      moveInterval = setInterval(moveBox, currentSpeed);
 
       gameInterval = setInterval(() => {
         timeLeft--;
         timeDisplay.textContent = timeLeft;
         if (timeLeft <= 0) {
-          clearInterval(gameInterval);
-          clearInterval(moveInterval);
-          box.style.display = 'none';
-          alert(`⏰ Time's up! Your score: ${score}`);
-          startBtn.disabled = false;
+          endGame();
         }
       }, 1000);
     }
 
-    box.addEventListener('click', () => {
+    function endGame() {
+      clearInterval(gameInterval);
+      clearInterval(moveInterval);
+      box.style.display = 'none';
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-redo me-2"></i> Play Again';
+
+      finalScoreDisplay.textContent = score;
+      gameOverOverlay.classList.add('active');
+    }
+
+    // Handle touch/click
+    const hitBox = (e) => {
+      // prevent default to avoid double fire on touch devices
+      e.preventDefault();
+      if (timeLeft <= 0) return;
+
       score++;
       scoreDisplay.textContent = score;
+
+      // Speed up slightly every 5 points
+      if (score % 5 === 0 && currentSpeed > 400) {
+        currentSpeed -= 100;
+        clearInterval(moveInterval);
+        moveInterval = setInterval(moveBox, currentSpeed);
+      }
+
       moveBox();
-    });
+    };
+
+    box.addEventListener('mousedown', hitBox);
+    box.addEventListener('touchstart', hitBox);
 
     startBtn.addEventListener('click', startGame);
   </script>

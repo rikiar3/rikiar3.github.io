@@ -1,70 +1,258 @@
 <!DOCTYPE html>
 <html lang="id">
-<head>
-  <meta charset="UTF-8">
-  <title>Viewer Excel + Sort + Format Angka</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    h1 {
-      color: #333;
-    }
-    input[type="file"] {
-      margin-bottom: 20px;
-    }
-    table {
-      border-collapse: collapse;
-      width: 100%;
-      margin-top: 10px;
-    }
-    th, td {
-      border: 1px solid #ccc;
-      padding: 8px;
-    }
-    th {
-      background-color: #f0f0f0;
-      cursor: pointer;
-      text-align: left;
-    }
-    td.numeric {
-      text-align: right;
-    }
-    th.sort-asc::after {
-      content: " ▲";
-    }
-    th.sort-desc::after {
-      content: " ▼";
-    }
-  </style>
 
-<!-- Required meta tags -->
+<head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Excel Web Reader - Varchar</title>
 
   <!-- Bootstrap CSS -->
   <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous"> -->
-
-  <!-- my fons  -->
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-  <!-- my CSS -->
-  <link rel="stylesheet" href="../style.css" />
-
-  <!-- font fontawesome -->
+  <!-- Font Awesome -->
   <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
+  <style>
+    :root {
+      --excel-green: #107c41;
+      --excel-hover: #185c37;
+      --bg-light: #f3f2f1;
+      --border-color: #e1dfdd;
+      --text-main: #323130;
+      --cell-bg: #ffffff;
+      --header-bg: #f8f9fa;
+      --cell-hover: #f3f2f1;
+      --cell-border: #d2d0ce;
+    }
 
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    /* Top Ribbon / Header */
+    .ribbon {
+      background-color: var(--excel-green);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .ribbon-brand {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ribbon-brand i {
+      font-size: 1.5rem;
+    }
+
+    .btn-ribbon {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 4px;
+      padding: 5px 15px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .btn-ribbon:hover {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+    }
+
+    /* Toolbar Area */
+    .toolbar {
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 9;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .btn-upload {
+      background-color: var(--bg-light);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-upload:hover {
+      background-color: #edebe9;
+    }
+
+    .status-text {
+      font-size: 0.9rem;
+      color: #605e5c;
+    }
+
+    /* Main Content / Table Area */
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      background-color: #e1dfdd;
+      /* Background behind table like excel */
+      padding: 10px;
+    }
+
+    table {
+      border-collapse: collapse;
+      background-color: var(--cell-bg);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--cell-border);
+      min-width: 100%;
+    }
+
+    th,
+    td {
+      border: 1px solid var(--cell-border);
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      white-space: nowrap;
+    }
+
+    th {
+      background-color: var(--header-bg);
+      font-weight: 600;
+      color: #605e5c;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    th:hover {
+      background-color: #edebe9;
+    }
+
+    /* Row numbers column */
+    .row-number {
+      background-color: var(--header-bg);
+      color: #605e5c;
+      font-weight: 500;
+      text-align: center;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+    }
+
+    tbody tr:hover td {
+      background-color: var(--cell-hover);
+    }
+
+    td.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* Sort indicators */
+    th.sort-asc::after {
+      content: " \f0de";
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 0.8em;
+      margin-left: 5px;
+      color: var(--excel-green);
+    }
+
+    th.sort-desc::after {
+      content: " \f0dd";
+      font-family: 'Font Awesome 5 Free';
+      font-weight: 900;
+      font-size: 0.8em;
+      margin-left: 5px;
+      color: var(--excel-green);
+    }
+
+    /* Empty state */
+    .empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: #a19f9d;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+      color: #c8c6c4;
+    }
+  </style>
 </head>
+
 <body>
-	
-  <h1>Lihat Data Excel (.xls/.xlsx)</h1>
-  <a class="btn btn-primary" href="../aplikasi.html">Kembali</a>
-  <input type="file" id="upload" accept=".xls,.xlsx" />
-  <div id="excel-data"></div>
-   
+
+  <!-- Ribbon -->
+  <div class="ribbon">
+    <div class="ribbon-brand">
+      <i class="fas fa-file-excel"></i>
+      Web Excel Reader
+    </div>
+    <a class="btn-ribbon" href="../aplikasi.html"><i class="fas fa-arrow-left me-2"></i>Kembali ke Menu</a>
+  </div>
+
+  <!-- Toolbar -->
+  <div class="toolbar">
+    <div class="file-input-wrapper">
+      <button class="btn-upload"><i class="fas fa-folder-open text-warning"></i> Buka File .xls/.xlsx</button>
+      <input type="file" id="upload" accept=".xls,.xlsx" />
+    </div>
+    <span class="status-text" id="fileName">Pilih file untuk melihat data...</span>
+  </div>
+
+  <!-- Table Area -->
+  <div class="table-container" id="excel-data">
+    <div class="empty-state">
+      <i class="fas fa-table"></i>
+      <h5>Belum ada data yang dimuat</h5>
+      <p>Silakan upload file Excel Anda terlebih dahulu.</p>
+    </div>
+  </div>
 
   <!-- SheetJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -74,6 +262,8 @@
     document.getElementById('upload').addEventListener('change', function (e) {
       const file = e.target.files[0];
       if (!file) return;
+
+      document.getElementById('fileName').innerHTML = `<i class="fas fa-file-excel text-success"></i> ${file.name}`;
 
       const reader = new FileReader();
       reader.onload = function (event) {
@@ -94,19 +284,48 @@
       const thead = document.createElement('thead');
       const tbody = document.createElement('tbody');
 
+      if (!data || data.length === 0) return;
+
+      // Header Row
       const headerRow = document.createElement('tr');
-      data[0].forEach((col, i) => {
+      // Empty corner cell for row numbers
+      const cornerTh = document.createElement('th');
+      cornerTh.style.width = '40px';
+      cornerTh.style.zIndex = '3';
+      headerRow.appendChild(cornerTh);
+
+      // Extract max columns to ensure grid covers all data
+      let maxCols = 0;
+      data.forEach(row => { if (row.length > maxCols) maxCols = row.length });
+
+      // Build Headers (A, B, C...) or use row 0 if we assume row 0 is headers
+      // Let's use row 0 as headers like original code
+      for (let i = 0; i < maxCols; i++) {
         const th = document.createElement('th');
-        th.textContent = col || `Kolom ${i + 1}`;
-        th.addEventListener('click', () => sortTable(table, i));
+        const headerText = (data[0] && data[0][i] !== undefined && data[0][i] !== '') ? data[0][i] : `Kolom ${i + 1}`;
+        th.textContent = headerText;
+        th.addEventListener('click', () => sortTable(table, i + 1)); // +1 offset because of row number col
         headerRow.appendChild(th);
-      });
+      }
       thead.appendChild(headerRow);
 
+      // Data Rows
       for (let i = 1; i < data.length; i++) {
+        // Skip completely empty rows
+        if (data[i].length === 0) continue;
+
         const row = document.createElement('tr');
-        data[i].forEach(cell => {
+
+        // Row Number
+        const tdRowNum = document.createElement('td');
+        tdRowNum.textContent = i;
+        tdRowNum.className = 'row-number';
+        row.appendChild(tdRowNum);
+
+        for (let j = 0; j < maxCols; j++) {
+          const cell = data[i][j];
           const td = document.createElement('td');
+
           if (typeof cell === 'number') {
             td.textContent = formatNumber(cell);
             td.classList.add('numeric');
@@ -122,12 +341,13 @@
             td.textContent = cell ?? '';
           }
           row.appendChild(td);
-        });
+        }
         tbody.appendChild(row);
       }
 
       table.appendChild(thead);
       table.appendChild(tbody);
+
       const container = document.getElementById('excel-data');
       container.innerHTML = '';
       container.appendChild(table);
@@ -142,6 +362,7 @@
       const rows = Array.from(tbody.rows);
       const ths = table.querySelectorAll('th');
 
+      // Clear sort icons
       ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
 
       if (currentSort.index === colIndex) {
@@ -156,20 +377,31 @@
       currentTh.classList.add(ascending ? 'sort-asc' : 'sort-desc');
 
       rows.sort((a, b) => {
+        // Handle undefined cells safely
+        if (!a.cells[colIndex] || !b.cells[colIndex]) return 0;
+
         const aText = a.cells[colIndex].textContent.replace(/\./g, '').trim();
         const bText = b.cells[colIndex].textContent.replace(/\./g, '').trim();
+
         const aNum = parseFloat(aText);
         const bNum = parseFloat(bText);
 
-        if (!isNaN(aNum) && !isNaN(bNum)) {
+        if (!isNaN(aNum) && !isNaN(bNum) && aText !== '' && bText !== '') {
           return ascending ? aNum - bNum : bNum - aNum;
         } else {
           return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
         }
       });
 
+      // Append in sorted order
       rows.forEach(row => tbody.appendChild(row));
+
+      // Re-number rows after sort to keep numbering sequential
+      rows.forEach((row, idx) => {
+        row.cells[0].textContent = idx + 1;
+      });
     }
   </script>
 </body>
+
 </html>

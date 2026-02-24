@@ -2,134 +2,330 @@
 <html lang="id">
 
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Game Ular</title>
+  <title>Neon Snake - Varchar Games</title>
 
   <!-- Bootstrap CSS -->
   <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet" />
-  <link href="fontawesome/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800;900&display=swap" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
 
   <style>
+    :root {
+      --bg-color: #050b14;
+      --card-bg: rgba(10, 20, 35, 0.8);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --neon-green: #22c55e;
+      --neon-red: #ef4444;
+      --grid-color: rgba(34, 197, 94, 0.05);
+    }
+
     body {
-      background: #111;
+      font-family: 'Outfit', sans-serif;
+      background-color: var(--bg-color);
       color: white;
-      font-family: 'Roboto', sans-serif;
-      text-align: center;
-      padding-top: 30px;
-    }
-
-    canvas {
-      background: #222;
-      display: block;
-      margin: 20px auto;
-      border: 2px solid #fff;
-    }
-
-    #score {
-      font-size: 1.3rem;
-      margin-top: 10px;
-    }
-
-    .controls {
+      min-height: 100vh;
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 10px;
-      margin-top: 20px;
+      margin: 0;
+      padding: 20px 10px;
+      overflow-x: hidden;
+      background-image:
+        linear-gradient(rgba(5, 11, 20, 0.9), rgba(5, 11, 20, 0.9)),
+        repeating-linear-gradient(0deg, transparent, transparent 40px, var(--grid-color) 40px, var(--grid-color) 41px),
+        repeating-linear-gradient(90deg, transparent, transparent 40px, var(--grid-color) 40px, var(--grid-color) 41px);
     }
 
-    .row-controls {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .btn-control {
-      padding: 12px 25px;
-      font-size: 1.1rem;
-      background-color: #007bff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-    }
-
-    .btn-control:active {
-      background-color: #0056b3;
-    }
-
-    #start-btn {
-      margin-top: 20px;
-      background-color: #28a745;
-      color: white;
-      border: none;
-      border-radius: 6px;
-      padding: 10px 25px;
-      font-size: 1rem;
-    }
-
-    #start-btn:hover {
-      background-color: #1e7e34;
-    }
-
-    select {
-      padding: 10px;
-      font-size: 1rem;
-      border-radius: 5px;
-      margin-top: 10px;
-      border: none;
-    }
-
-    .btn-back {
+    .btn-back-link {
       position: absolute;
       top: 20px;
       left: 20px;
+      color: #94a3b8;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      padding: 10px 20px;
+      border-radius: 50px;
+      backdrop-filter: blur(10px);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .btn-back-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(-5px);
+    }
+
+    .game-wrapper {
+      position: relative;
+      background: var(--card-bg);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid var(--glass-border);
+      border-radius: 30px;
+      padding: 30px;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(34, 197, 94, 0.05);
+      text-align: center;
+      margin-top: 30px;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      background: linear-gradient(to right, #4ade80, #10b981);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 20px;
+      text-shadow: 0 0 30px rgba(34, 197, 94, 0.3);
+    }
+
+    .score-board {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: rgba(0, 0, 0, 0.4);
+      padding: 10px 20px;
+      border-radius: 15px;
+      margin-bottom: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .score-board span {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--neon-green);
+      text-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+
+    .canvas-container {
+      position: relative;
+      padding: 5px;
+      background: rgba(0, 0, 0, 0.5);
+      border-radius: 10px;
+      border: 2px solid rgba(34, 197, 94, 0.3);
+      box-shadow: 0 0 20px rgba(34, 197, 94, 0.1);
+      display: inline-block;
+    }
+
+    canvas {
+      display: block;
+      background: #020617;
+      border-radius: 5px;
+      /* Using a fixed size to maintain game grid logic, but scaling it via css if needed */
+    }
+
+    .controls-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 15px;
+      margin-top: 25px;
+    }
+
+    select,
+    .btn-action {
+      background: #0f172a;
+      color: white;
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 12px 24px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: 'Outfit', sans-serif;
+      outline: none;
+      transition: all 0.3s;
+    }
+
+    select:focus {
+      border-color: var(--neon-green);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-action {
+      background: var(--neon-green);
+      border-color: var(--neon-green);
+      color: #064e3b;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      box-shadow: 0 5px 15px rgba(34, 197, 94, 0.3);
+    }
+
+    .btn-action:hover {
+      background: #16a34a;
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(34, 197, 94, 0.5);
+      color: white;
+    }
+
+    .d-pad {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
+    }
+
+    .btn-dir {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      color: white;
+      width: 50px;
+      height: 50px;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-dir:active {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: var(--neon-green);
+      transform: scale(0.9);
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.5);
+    }
+
+    .btn-dir.up {
+      grid-column: 2;
+      grid-row: 1;
+    }
+
+    .btn-dir.left {
+      grid-column: 1;
+      grid-row: 2;
+    }
+
+    .btn-dir.right {
+      grid-column: 3;
+      grid-row: 2;
+    }
+
+    .btn-dir.down {
+      grid-column: 2;
+      grid-row: 3;
+    }
+
+    #gameOverOverlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(2, 6, 23, 0.85);
+      backdrop-filter: blur(5px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.3s;
+      z-index: 20;
+    }
+
+    #gameOverOverlay.active {
+      opacity: 1;
+      pointer-events: auto;
+    }
+
+    #gameOverOverlay h2 {
+      font-size: 2.5rem;
+      font-weight: 900;
+      color: var(--neon-red);
+      text-shadow: 0 0 20px rgba(239, 68, 68, 0.6);
+      margin-bottom: 5px;
     }
   </style>
 </head>
 
 <body>
-  <a class="btn btn-outline-light btn-back" href="../aplikasi.html">
+
+  <a class="btn-back-link" href="../aplikasi.html">
     <i class="fas fa-arrow-left me-2"></i>Kembali
   </a>
 
-  <div class="container">
-    <h1 class="mb-3">🐍 Game Ular</h1>
-    <p id="score">🏆 Skor: 0</p>
-    <canvas id="gameCanvas" width="400" height="400"></canvas>
+  <div class="game-wrapper">
+    <h1>Neon Snake</h1>
 
-    <div class="my-3">
-      <label for="speed" class="form-label">🎮 Pilih Level Kecepatan:</label><br />
-      <select id="speed" class="form-select w-auto d-inline-block">
-        <option value="250">1 - Lamban 🐢</option>
-        <option value="150" selected>2 - Sedang 🚶</option>
-        <option value="80">3 - Cepat 🏃</option>
-      </select>
+    <div class="score-board">
+      <i class="fas fa-star me-2 text-warning"></i>
+      <span id="scoreDisplay">0</span>
     </div>
 
-    <button id="start-btn">▶️ Mulai</button>
+    <div class="canvas-container">
+      <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-    <div class="controls">
-      <button class="btn-control" onclick="changeDirection('up')">⬆️</button>
-      <div class="row-controls">
-        <button class="btn-control" onclick="changeDirection('left')">⬅️</button>
-        <button class="btn-control" onclick="changeDirection('right')">➡️</button>
+      <div id="gameOverOverlay">
+        <h2>GAME OVER</h2>
+        <p class="mb-4 text-secondary fs-5">Final Score: <strong id="finalScore" class="text-white">0</strong></p>
+        <button class="btn-action" style="padding: 8px 20px; font-size: 0.9rem;" onclick="startGame()">Restart</button>
       </div>
-      <button class="btn-control" onclick="changeDirection('down')">⬇️</button>
+    </div>
+
+    <div class="controls-panel">
+      <div class="d-flex gap-3 align-items-center flex-wrap justify-content-center">
+        <select id="speedSelect">
+          <option value="250">Speed: Slow</option>
+          <option value="150" selected>Speed: Normal</option>
+          <option value="80">Speed: Fast</option>
+          <option value="50">Speed: Insane</option>
+        </select>
+        <button id="start-btn" class="btn-action" onclick="startGame()"><i class="fas fa-play me-2"></i>Play</button>
+      </div>
+
+      <!-- On screen D-pad for mobile -->
+      <div class="d-pad">
+        <div class="btn-dir up" onclick="changeDirection('up')"><i class="fas fa-arrow-up"></i></div>
+        <div class="btn-dir left" onclick="changeDirection('left')"><i class="fas fa-arrow-left"></i></div>
+        <div class="btn-dir right" onclick="changeDirection('right')"><i class="fas fa-arrow-right"></i></div>
+        <div class="btn-dir down" onclick="changeDirection('down')"><i class="fas fa-arrow-down"></i></div>
+      </div>
     </div>
   </div>
 
-  <!-- Bootstrap JS -->
   <script src="../bootstrap5/js/bootstrap.bundle.min.js"></script>
-
   <script>
     const canvas = document.getElementById("gameCanvas");
     const ctx = canvas.getContext("2d");
     const box = 20;
     const canvasSize = 400;
 
-    let snake, direction, food, score, game;
+    const scoreDisplay = document.getElementById("scoreDisplay");
+    const overlay = document.getElementById("gameOverOverlay");
+    const finalScore = document.getElementById("finalScore");
+    const startBtn = document.getElementById("start-btn");
+    const speedSelect = document.getElementById("speedSelect");
+
+    let snake, direction, nextDirection, food, score, gameLoop;
+    let gameActive = false;
+
+    function drawGrid() {
+      ctx.strokeStyle = "rgba(34, 197, 94, 0.05)";
+      ctx.lineWidth = 1;
+      for (let i = 0; i <= canvasSize; i += box) {
+        ctx.beginPath();
+        // vertical
+        ctx.moveTo(i, 0);
+        ctx.lineTo(i, canvasSize);
+        // horizontal
+        ctx.moveTo(0, i);
+        ctx.lineTo(canvasSize, i);
+        ctx.stroke();
+      }
+    }
 
     function spawnFood() {
       return {
@@ -138,71 +334,139 @@
       };
     }
 
-    function startGame() {
-      snake = [{ x: 200, y: 200 }];
-      direction = "right";
-      food = spawnFood();
-      score = 0;
-      document.getElementById("score").textContent = `🏆 Skor: ${score}`;
-      clearInterval(game);
-      const speed = parseInt(document.getElementById("speed").value);
-      game = setInterval(draw, speed);
+    function initDraw() {
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawGrid();
     }
 
-    function draw() {
-      ctx.fillStyle = "#222";
+    function startGame() {
+      // Starting snake length 3
+      snake = [
+        { x: 200, y: 200 },
+        { x: 180, y: 200 },
+        { x: 160, y: 200 }
+      ];
+      direction = "right";
+      nextDirection = "right";
+      food = spawnFood();
+      score = 0;
+
+      scoreDisplay.textContent = score;
+      overlay.classList.remove('active');
+      startBtn.disabled = true;
+      gameActive = true;
+
+      clearInterval(gameLoop);
+      const speed = parseInt(speedSelect.value);
+      gameLoop = setInterval(update, speed);
+
+      initDraw();
+    }
+
+    function update() {
+      // Apply next direction safely (prevents rapid double turns causing self-intersect)
+      direction = nextDirection;
+
+      // Draw Background
+      ctx.fillStyle = "rgba(2, 6, 23, 0.8)";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
+      drawGrid();
 
+      // Draw Food
+      ctx.shadowBlur = 15;
+      ctx.shadowColor = "#ef4444";
+      ctx.fillStyle = "#ef4444";
+      // Slightly smaller box for food for style
+      ctx.fillRect(food.x + 2, food.y + 2, box - 4, box - 4);
+      ctx.shadowBlur = 0;
+
+      // Draw Snake
       for (let i = 0; i < snake.length; i++) {
-        ctx.fillStyle = i === 0 ? "lime" : "green";
-        ctx.fillRect(snake[i].x, snake[i].y, box, box);
+        ctx.shadowBlur = i === 0 ? 10 : 5;
+        ctx.shadowColor = "#22c55e";
+
+        // Head is brighter
+        ctx.fillStyle = i === 0 ? "#4ade80" : "#22c55e";
+
+        // Draw slightly smaller than box to show gaps
+        ctx.fillRect(snake[i].x + 1, snake[i].y + 1, box - 2, box - 2);
       }
+      ctx.shadowBlur = 0;
 
-      ctx.fillStyle = "red";
-      ctx.fillRect(food.x, food.y, box, box);
-
+      // Move Head
       let head = { ...snake[0] };
       if (direction === "right") head.x += box;
       if (direction === "left") head.x -= box;
       if (direction === "up") head.y -= box;
       if (direction === "down") head.y += box;
 
+      // Check Collision with walls
       if (
         head.x < 0 || head.x >= canvasSize ||
         head.y < 0 || head.y >= canvasSize ||
         snake.some(segment => segment.x === head.x && segment.y === head.y)
       ) {
-        clearInterval(game);
-        alert("💥 Game Over! Skor: " + score);
+        gameOver();
         return;
       }
 
       snake.unshift(head);
 
+      // Check Collision with food
       if (head.x === food.x && head.y === food.y) {
         score++;
-        document.getElementById("score").textContent = `🏆 Skor: ${score}`;
-        food = spawnFood();
+        scoreDisplay.textContent = score;
+
+        // Ensure food doesn't spawn on snake
+        let validFoodLocation = false;
+        let newFood;
+        while (!validFoodLocation) {
+          newFood = spawnFood();
+          validFoodLocation = !snake.some(segment => segment.x === newFood.x && segment.y === newFood.y);
+        }
+        food = newFood;
       } else {
         snake.pop();
       }
     }
 
-    function changeDirection(dir) {
-      if (dir === "left" && direction !== "right") direction = "left";
-      if (dir === "right" && direction !== "left") direction = "right";
-      if (dir === "up" && direction !== "down") direction = "up";
-      if (dir === "down" && direction !== "up") direction = "down";
+    function gameOver() {
+      clearInterval(gameLoop);
+      gameActive = false;
+      finalScore.textContent = score;
+      overlay.classList.add('active');
+      startBtn.disabled = false;
+      startBtn.innerHTML = '<i class="fas fa-redo me-2"></i>Restart';
     }
 
-    document.getElementById("start-btn").addEventListener("click", startGame);
+    function changeDirection(dir) {
+      if (!gameActive) return;
+      if (dir === "left" && direction !== "right") nextDirection = "left";
+      if (dir === "right" && direction !== "left") nextDirection = "right";
+      if (dir === "up" && direction !== "down") nextDirection = "up";
+      if (dir === "down" && direction !== "up") nextDirection = "down";
+    }
 
     document.addEventListener("keydown", (e) => {
-      if (e.key === "ArrowLeft") changeDirection("left");
-      if (e.key === "ArrowRight") changeDirection("right");
-      if (e.key === "ArrowUp") changeDirection("up");
-      if (e.key === "ArrowDown") changeDirection("down");
+      // Prevent default scrolling for arrow keys
+      if (["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", " "].indexOf(e.key) > -1) {
+        e.preventDefault();
+      }
+
+      if (e.key === "ArrowLeft" || e.key === "a") changeDirection("left");
+      if (e.key === "ArrowRight" || e.key === "d") changeDirection("right");
+      if (e.key === "ArrowUp" || e.key === "w") changeDirection("up");
+      if (e.key === "ArrowDown" || e.key === "s") changeDirection("down");
+
+      // Space to start/restart
+      if (e.key === " " && !gameActive) {
+        startGame();
+      }
     });
+
+    // Draw initial static state
+    initDraw();
   </script>
 </body>
 
