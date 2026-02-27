@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Lompat Lompat - Game</title>
+    <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+    <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;800&display=swap" rel="stylesheet" />
+
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: rgba(30, 41, 59, 0.7);
+            --primary: #3b82f6;
+            --success: #10b981;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at top, #1e1b4b 0%, #0f172a 70%);
+            color: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .game-container {
+            background: var(--card-bg);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 30px;
+            max-width: 1000px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            color: #60a5fa;
+            text-shadow: 0 0 20px rgba(96, 165, 250, 0.3);
+            margin-bottom: 10px;
+        }
+
+        .instructions {
+            color: #94a3b8;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        .game-canvas-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background: linear-gradient(180deg, #0c4a6e 0%, #082f4f 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+            aspect-ratio: 2;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 800;
+            color: #60a5fa;
+        }
+
+        .controls {
+            text-align: center;
+            margin-top: 20px;
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .btn-back {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 10px 20px;
+            background: #475569;
+            color: white;
+            text-decoration: none;
+            border-radius: 50px;
+            transition: all 0.3s;
+        }
+
+        .btn-back:hover {
+            background: #64748b;
+            color: white;
+        }
+
+        #gameOverMessage {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(15, 23, 42, 0.95);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            z-index: 10;
+            display: none;
+            border: 2px solid #ef4444;
+        }
+
+        #gameOverMessage h2 {
+            color: #ef4444;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+        }
+
+        #gameOverMessage p {
+            color: #f8fafc;
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+        }
+
+        #gameOverMessage button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 50px;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        #gameOverMessage button:hover {
+            background: #60a5fa;
+        }
+
+        #countdownOverlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(15, 23, 42, 0.8);
+            z-index: 20;
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+            visibility: hidden;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        #countdownOverlay.active {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        #countdownIcon {
+            position: absolute;
+            top: -60px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 80px;
+            animation: countdownFall 3s ease-in forwards;
+            display: none;
+            z-index: 22;
+        }
+
+        @keyframes countdownFall {
+            0% {
+                top: -60px;
+                opacity: 1;
+            }
+            100% {
+                top: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                opacity: 1;
+            }
+        }
+
+        #countdownText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 100px;
+            font-weight: 900;
+            color: #60a5fa;
+            text-shadow: 0 0 30px rgba(96, 165, 250, 0.6);
+            display: none;
+            z-index: 22;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.1);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        #readyText {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 60px;
+            font-weight: 900;
+            color: #10b981;
+            text-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+            display: none;
+            z-index: 22;
+            animation: bounceIn 0.5s;
+        }
+
+        @keyframes bounceIn {
+            0% {
+                transform: translate(-50%, -50%) scale(0.5);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.15);
+                opacity: 1;
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="game-container">
+        <div class="header">
+            <h1><i class="fas fa-person-hiking"></i> Lompat Lompat</h1>
+            <p class="instructions">Klik atau tekan SPASI untuk melompat! Hindari rintangan dan lewati lubangnya.</p>
+        </div>
+
+        <div class="game-canvas-wrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div id="countdownOverlay">
+                <i id="countdownIcon" class="fas fa-person-hiking"></i>
+                <div id="countdownText">3</div>
+                <div id="readyText">GO!</div>
+            </div>
+            <div id="gameOverMessage">
+                <h2>GAME OVER!</h2>
+                <p>Skor Akhir: <span id="finalScore">0</span></p>
+                <button onclick="restartGame()">Main Lagi</button>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stat">
+                <div class="stat-label">SKOR</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat">
+                <div class="stat-label">BEST</div>
+                <div class="stat-value" id="bestScore">0</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <p><i class="fas fa-info-circle"></i> Klik atau tekan SPASI untuk melompat lebih tinggi!</p>
+        </div>
+
+        <div style="text-align: center;">
+            <a class="btn-back" href="../aplikasi.html"><i class="fas fa-arrow-left"></i> Kembali</a>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Set canvas size with small delay to ensure proper rendering
+        function resizeCanvas() {
+            const wrapper = canvas.parentElement;
+            canvas.width = wrapper.offsetWidth;
+            canvas.height = wrapper.offsetHeight;
+            
+            if (canvas.width === 0 || canvas.height === 0) {
+                setTimeout(resizeCanvas, 100);
+            }
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
+
+        // Game variables
+        let gameActive = false;
+        let gameStarted = false;
+        let countdownActive = false;
+        let score = 0;
+        let bestScore = localStorage.getItem('lompat2_best_score') || 0;
+        let animFrame = 0;
+        let gameStartTime = 0;  // Untuk tracking waktu game
+        let lastSpeedBoostTime = 0;  // Untuk tracking kapan terakhir speed boost
+
+        // Player - initialized after canvas size is set
+        const player = {
+            x: 50,
+            y: canvas.height / 2,
+            width: 25,
+            height: 25,
+            velocityY: 0,
+            jumpPower: 4,  // Dikurangi setengahnya untuk lompatan lebih pendek
+            gravity: 0.25
+        };
+
+        // Obstacles
+        let obstacles = [];
+        let obstacleGap = 150;  // Diperlebar dari 100 agar sesuai dengan lompatan yang lebih pendek
+        let obstacleWidth = 50;
+        let obstacleSpacing = 350;  // Jarak antar balok lebih jauh di awal
+        let nextObstacleX = canvas.width + 100;  // Mulai lebih dekat untuk mempercepat obstacle pertama
+        let obstacleSpeed = 2;  // Kecepatan balok lebih pelan di awal
+        let baseObstacleSpeed = 2;  // Base speed untuk perhitungan
+        let totalObstaclesSpawned = 0;  // Track total obstacles yang sudah di-spawn (max 100)
+
+        // Colors
+        const colors = {
+            player: '#60a5fa',
+            obstacle: '#ef4444',
+            gap: 'transparent',
+            sky: '#0c4a6e',
+            ground: '#082f4f'
+        };
+
+        function updateBestScore() {
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem('lompat2_best_score', bestScore);
+                document.getElementById('bestScore').textContent = bestScore;
+            }
+        }
+
+        function generateObstacle() {
+            const gapPositions = ['top', 'middle', 'bottom'];
+            const gapPos = gapPositions[Math.floor(Math.random() * gapPositions.length)];
+
+            let gapY;
+            const gapSize = obstacleGap;
+
+            if (gapPos === 'top') {
+                gapY = 30;
+            } else if (gapPos === 'middle') {
+                gapY = (canvas.height - gapSize) / 2;
+            } else {
+                gapY = canvas.height - gapSize - 30;
+            }
+
+            obstacles.push({
+                x: nextObstacleX,
+                width: obstacleWidth,
+                gapY: gapY,
+                gapSize: gapSize,
+                passed: false
+            });
+
+            nextObstacleX += obstacleSpacing;
+        }
+
+        function generateAll100Obstacles() {
+            // Pre-generate semua 100 obstacles di awal game
+            // Ini memastikan semua obstacles tersedia tanpa masalah threshold
+            nextObstacleX = canvas.width + 100;
+            let tempSpacing = 350;
+
+            for (let i = 0; i < 100; i++) {
+                const gapPositions = ['top', 'middle', 'bottom'];
+                const gapPos = gapPositions[Math.floor(Math.random() * gapPositions.length)];
+
+                let gapY;
+                const gapSize = obstacleGap;
+
+                if (gapPos === 'top') {
+                    gapY = 30;
+                } else if (gapPos === 'middle') {
+                    gapY = (canvas.height - gapSize) / 2;
+                } else {
+                    gapY = canvas.height - gapSize - 30;
+                }
+
+                obstacles.push({
+                    x: nextObstacleX,
+                    width: obstacleWidth,
+                    gapY: gapY,
+                    gapSize: gapSize,
+                    passed: false
+                });
+
+                nextObstacleX += tempSpacing;
+                // Spacing berkurang seiring dengan obstacle (simulasi difficulty naik)
+                tempSpacing = Math.max(350 - (i * 5), 150);
+            }
+
+            totalObstaclesSpawned = 100;
+        }
+
+        function drawPlayer() {
+            const centerX = player.x + player.width / 2;
+            const centerY = player.y + player.height / 2;
+
+            // Draw body
+            ctx.fillStyle = colors.player;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 3, player.width / 2, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Draw head
+            ctx.fillStyle = colors.player;
+            ctx.beginPath();
+            ctx.arc(centerX, centerY - 10, 8, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Eyes
+            ctx.fillStyle = '#0f172a';
+            const eyeRadius = 2;
+            ctx.beginPath();
+            ctx.arc(centerX - 4, centerY - 12, eyeRadius, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(centerX + 4, centerY - 12, eyeRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Animate legs (walking)
+            const legPhase = Math.sin(animFrame * 0.3) * 3;
+            
+            // Left leg
+            ctx.strokeStyle = colors.player;
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(centerX - 3, centerY + 5);
+            ctx.lineTo(centerX - 3, centerY + 10 + legPhase);
+            ctx.stroke();
+
+            // Right leg
+            ctx.beginPath();
+            ctx.moveTo(centerX + 3, centerY + 5);
+            ctx.lineTo(centerX + 3, centerY + 10 - legPhase);
+            ctx.stroke();
+        }
+
+        function drawObstacles() {
+            obstacles.forEach(obstacle => {
+                // Top obstacle
+                ctx.fillStyle = '#dc2626';
+                ctx.fillRect(obstacle.x, 0, obstacle.width, obstacle.gapY);
+
+                // Bottom obstacle
+                ctx.fillRect(obstacle.x, obstacle.gapY + obstacle.gapSize, obstacle.width, canvas.height - obstacle.gapY - obstacle.gapSize);
+
+                // Gap highlight
+                ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(obstacle.x, obstacle.gapY, obstacle.width, obstacle.gapSize);
+            });
+        }
+
+        function updatePlayer() {
+            // Update animation frame
+            animFrame++;
+
+            // Apply gravity with max fall speed
+            player.velocityY += player.gravity;
+            player.velocityY = Math.min(player.velocityY, 8); // Cap velocity for safer falling
+            player.y += player.velocityY;
+
+            // Boundary check
+            if (player.y + player.height > canvas.height) {
+                gameActive = false;
+                showGameOver();
+            }
+
+            if (player.y < 0) {
+                gameActive = false;
+                showGameOver();
+            }
+        }
+
+        function updateObstacles() {
+            obstacles.forEach((obstacle, index) => {
+                obstacle.x -= obstacleSpeed;
+
+                // Score when passing obstacle
+                if (!obstacle.passed && obstacle.x + obstacle.width < player.x) {
+                    obstacle.passed = true;
+                    score++;
+                    document.getElementById('score').textContent = score;
+                    
+                    // Increase difficulty progressively berdasarkan score
+                    // Kecepatan naik smooth dari 2 menjadi max 12
+                    obstacleSpeed = Math.min(baseObstacleSpeed + (score * 0.25), 12);
+                    
+                    // Jarak balok berkurang semakin dekat - dari 350 menjadi min 150
+                    obstacleSpacing = Math.max(350 - (score * 5), 150);
+                }
+
+                // Remove off-screen obstacles
+                if (obstacle.x + obstacle.width < 0) {
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        function checkCollision() {
+            const playerLeft = player.x;
+            const playerRight = player.x + player.width;
+            const playerTop = player.y;
+            const playerBottom = player.y + player.height;
+
+            obstacles.forEach(obstacle => {
+                const obstacleRight = obstacle.x + obstacle.width;
+
+                // Check if player is within horizontal range of obstacle
+                if (playerRight > obstacle.x && playerLeft < obstacleRight) {
+                    // Check collision with top part
+                    if (playerTop < obstacle.gapY) {
+                        gameActive = false;
+                        showGameOver();
+                    }
+
+                    // Check collision with bottom part
+                    if (playerBottom > obstacle.gapY + obstacle.gapSize) {
+                        gameActive = false;
+                        showGameOver();
+                    }
+                }
+            });
+        }
+
+        function jump() {
+            if (gameActive) {
+                player.velocityY = -player.jumpPower;
+            }
+        }
+
+        function showGameOver() {
+            updateBestScore();
+            document.getElementById('finalScore').textContent = score;
+            document.getElementById('gameOverMessage').style.display = 'block';
+            gameStarted = false;
+        }
+
+        function startCountdown() {
+            gameStarted = true;
+            countdownActive = true;
+            gameActive = false;
+            gameStartTime = Date.now();  // Catat waktu mulai game
+            baseObstacleSpeed = 2;  // Reset base speed
+            totalObstaclesSpawned = 0;  // Reset obstacle counter
+            
+            // Sembunyikan game over message saat mulai countdown
+            document.getElementById('gameOverMessage').style.display = 'none';
+            
+            const overlay = document.getElementById('countdownOverlay');
+            overlay.classList.add('active');
+            document.getElementById('countdownIcon').style.display = 'block';
+            document.getElementById('countdownText').style.display = 'block';
+            document.getElementById('readyText').style.display = 'none';
+
+            let count = 3;
+            const countdownInterval = setInterval(() => {
+                document.getElementById('countdownText').textContent = count;
+                count--;
+
+                if (count < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('countdownIcon').style.display = 'none';
+                    document.getElementById('countdownText').style.display = 'none';
+                    document.getElementById('readyText').style.display = 'block';
+
+                    setTimeout(() => {
+                        overlay.classList.remove('active');
+                        countdownActive = false;
+                        gameActive = true;
+                        gameStartTime = Date.now();  // Update waktu saat game benar-benar mulai
+                        // Pre-generate semua 100 obstacles di awal game
+                        generateAll100Obstacles();
+                    }, 500);
+                }
+            }, 1000);
+        }
+
+        function restartGame() {
+            score = 0;
+            obstacleSpeed = 2;  // Reset ke kecepatan awal yang pelan
+            baseObstacleSpeed = 2;  // Reset base speed
+            obstacleSpacing = 350;  // Reset ke jarak awal yang jauh
+            document.getElementById('score').textContent = score;
+            player.y = canvas.height / 2;
+            player.velocityY = 0;
+            obstacles = [];
+            nextObstacleX = canvas.width + 100;  // Obstacles mulai lebih dekat untuk pacing lebih baik
+            totalObstaclesSpawned = 0;  // Reset counter obstacles
+            gameStartTime = Date.now();  // Reset game start time
+            document.getElementById('gameOverMessage').style.display = 'none';
+            startCountdown();
+        }
+
+        function draw() {
+            // Clear canvas with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#0c4a6e');
+            gradient.addColorStop(1, '#082f4f');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            drawPlayer();
+            drawObstacles();
+        }
+
+        function gameLoop() {
+            if (gameActive) {
+                // Time-based speed boost - setiap 10 detik speed naik 2x
+                const currentTime = Date.now();
+                const elapsedTime = (currentTime - gameStartTime) / 1000;  // Dalam detik
+                const speedBoostMultiplier = Math.pow(2, Math.floor(elapsedTime / 10));
+                
+                // Terapkan base speed dengan boost multiplier
+                obstacleSpeed = Math.min(baseObstacleSpeed * speedBoostMultiplier + (score * 0.15), 16);
+                
+                updatePlayer();
+                updateObstacles();
+                checkCollision();
+            }
+
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event listeners
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') {
+                e.preventDefault();
+                if (!gameStarted && !countdownActive) {
+                    startCountdown();
+                } else {
+                    jump();
+                }
+            }
+        });
+
+        canvas.addEventListener('click', () => {
+            if (!gameStarted && !countdownActive) {
+                startCountdown();
+            } else {
+                jump();
+            }
+        });
+
+        canvas.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            if (!gameStarted && !countdownActive) {
+                startCountdown();
+            } else {
+                jump();
+            }
+        });
+
+        // Initialize
+        setTimeout(() => {
+            document.getElementById('bestScore').textContent = bestScore;
+            nextObstacleX = canvas.width + 400;  // Mulai jauh dari player
+            gameLoop();
+        }, 100);
+    </script>
+</body>
+
+</html>

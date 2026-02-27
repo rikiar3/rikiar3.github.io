@@ -321,8 +321,8 @@
           if (winnerDeclared) return;
 
           // random speed with occasional bursts
-          const burst = Math.random() > 0.95 ? 15 : 0;
-          const step = Math.random() * 6 + 1.5 + burst;
+          const burst = Math.random() > 0.95 ? 3 : 0;
+          const step = (Math.random() * 6 + 1.5 + burst) / 5;
           runner.position += step;
           runner.element.style.transform = `translateX(${runner.position}px)`;
 
