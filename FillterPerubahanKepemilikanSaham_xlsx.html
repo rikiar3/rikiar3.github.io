@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Filter Saham Kepemilikan di atas 5% menggunakan Excel</title>
+
+  <!-- Bootstrap CSS -->
+  <link href="../bootstrap5/css/bootstrap.min.css" rel="stylesheet" />
+  <!-- Font Awesome -->
+  <link href="../fontawesome/css/all.min.css" rel="stylesheet" />
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --excel-green: #107c41;
+      --excel-hover: #185c37;
+      --bg-light: #f3f2f1;
+      --border-color: #e1dfdd;
+      --text-main: #323130;
+      --cell-bg: #ffffff;
+      --header-bg: #f8f9fa;
+      --cell-hover: #f3f2f1;
+      --cell-border: #d2d0ce;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-light);
+      color: var(--text-main);
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+    }
+
+    .ribbon {
+      background-color: var(--excel-green);
+      color: white;
+      padding: 10px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+    }
+
+    .ribbon-brand {
+      font-size: 1.2rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-ribbon {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      border-radius: 4px;
+      padding: 5px 15px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      transition: all 0.2s;
+    }
+
+    .toolbar {
+      background-color: white;
+      border-bottom: 1px solid var(--border-color);
+      padding: 15px 20px;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      z-index: 9;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      overflow: hidden;
+      display: inline-block;
+    }
+
+    .file-input-wrapper input[type=file] {
+      font-size: 100px;
+      position: absolute;
+      left: 0;
+      top: 0;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .btn-upload {
+      background-color: var(--bg-light);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      padding: 8px 16px;
+      border-radius: 4px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .table-container {
+      flex: 1;
+      overflow: auto;
+      background-color: #e1dfdd;
+      padding: 10px;
+    }
+
+    table {
+      border-collapse: collapse;
+      background-color: var(--cell-bg);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      border: 1px solid var(--cell-border);
+      width: 100%;
+      table-layout: auto; /* allow columns to size based on content */
+    }
+
+    th,
+    td {
+      border: 1px solid var(--cell-border);
+      padding: 6px 10px;
+      font-size: 0.9rem;
+      white-space: normal; /* allow wrapping so columns don't force horizontal scroll */
+      word-break: break-word;
+    }
+
+    th {
+      background-color: var(--header-bg);
+      font-weight: 600;
+      color: #605e5c;
+      cursor: pointer;
+      position: sticky;
+      top: 0;
+      z-index: 2;
+      user-select: none;
+      transition: background 0.2s;
+    }
+
+    .row-number {
+      background-color: var(--header-bg);
+      color: #605e5c;
+      font-weight: 500;
+      text-align: center;
+      position: sticky;
+      left: 0;
+      z-index: 1;
+    }
+
+    /* Make first (row number) column narrower so other columns have more space */
+    th:first-child, td.row-number {
+      width: 48px;
+      max-width: 48px;
+      padding: 4px 6px;
+      text-align: center;
+      white-space: nowrap;
+    }
+
+    td.numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap; /* keep numbers on single line for readability */
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="ribbon">
+    <div class="ribbon-brand">
+      <i class="fas fa-file-excel"></i>
+      Filter Saham Kepemilikan di atas 5% (Excel)
+    </div>
+    <a class="btn-ribbon" href="../aplikasi.html"><i class="fas fa-arrow-left me-2"></i>Kembali ke Menu</a>
+  </div>
+
+  <div class="toolbar">
+    <div class="file-input-wrapper">
+      <button class="btn-upload"><i class="fas fa-folder-open text-warning"></i> Buka File .xls/.xlsx</button>
+      <input type="file" id="upload" accept=".xls,.xlsx" />
+    </div>
+    <span class="status-text" id="fileName">Pilih file untuk melihat data...</span>
+    <a class="btn btn-sm btn-outline-primary ms-2" href="https://idx.co.id/id/perusahaan-tercatat/data-kepemilikan-saham/" target="_blank" rel="noopener noreferrer"><i class="fas fa-download me-1"></i>Data Kepemilikan Saham (IDX)</a>
+    <div style="margin-left:auto;color:#374151;font-weight:600">Filter: hanya tampilkan baris dengan Kolom 18 &gt; 0</div>
+  </div>
+
+  <div class="table-container" id="excel-data">
+    <div class="empty-state">
+      <i class="fas fa-table"></i>
+      <h5>Belum ada data yang dimuat</h5>
+      <p>Silakan upload file Excel Anda terlebih dahulu.</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script>
+    let currentSort = { index: null, ascending: true };
+
+    document.getElementById('upload').addEventListener('change', function (e) {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      document.getElementById('fileName').innerHTML = `<i class="fas fa-file-excel text-success"></i> ${file.name}`;
+
+      const reader = new FileReader();
+      reader.onload = function (event) {
+        const data = new Uint8Array(event.target.result);
+        const workbook = XLSX.read(data, { type: 'array' });
+
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const json = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        renderFilteredTable(json);
+      };
+      reader.readAsArrayBuffer(file);
+    });
+
+    function parseNumberLocal(val){
+      if(val == null) return NaN;
+      if(typeof val === 'number') return val;
+      // remove spaces, replace dot thousands and comma decimals (Indo format)
+      const s = String(val).trim().replace(/\s/g,'');
+      const hasDot = s.indexOf('.') > -1;
+      const hasComma = s.indexOf(',') > -1;
+
+      // if contains both '.' and ',', assume '.' thousands and ',' decimal -> normalize
+      if (hasDot && hasComma) {
+        return parseFloat(s.replace(/\./g, '').replace(/,/g, '.'));
+      }
+
+      // if contains only commas
+      if (hasComma && !hasDot) {
+        const parts = s.split(',');
+        // if multiple comma groups or last group has length 3 -> likely thousands separators
+        if (parts.length > 1 && (parts.length > 2 || parts[parts.length - 1].length === 3)) {
+          return parseFloat(s.replace(/,/g, ''));
+        }
+        // otherwise treat single comma as decimal separator
+        return parseFloat(s.replace(/,/g, '.'));
+      }
+
+      // if contains only dots
+      if (hasDot && !hasComma) {
+        const parts = s.split('.');
+        // multiple dots likely indicate thousands separators -> remove them
+        if (parts.length > 2) {
+          return parseFloat(s.replace(/\./g, ''));
+        }
+        // single dot -> decimal separator
+        return parseFloat(s);
+      }
+
+      // fallback: remove any non-number except dot and minus
+      const cleaned = s.replace(/[^0-9.-]/g, '');
+      return parseFloat(cleaned);
+    }
+
+    function renderFilteredTable(data) {
+      const table = document.createElement('table');
+      const thead = document.createElement('thead');
+      const tbody = document.createElement('tbody');
+      // create colgroup to control column widths (include row-number col as first)
+      const colgroup = document.createElement('colgroup');
+
+      if (!data || data.length === 0) return;
+
+      // Header Row (use row 0 if present)
+      const headerRow = document.createElement('tr');
+      const cornerTh = document.createElement('th');
+      cornerTh.style.width = '40px';
+      cornerTh.style.zIndex = '3';
+      headerRow.appendChild(cornerTh);
+
+      let maxCols = 0;
+      data.forEach(row => { if (row.length > maxCols) maxCols = row.length });
+
+      for (let i = 0; i < maxCols; i++) {
+        const th = document.createElement('th');
+        const headerText = (data[0] && data[0][i] !== undefined && data[0][i] !== '') ? data[0][i] : `Kolom ${i + 1}`;
+        th.textContent = headerText;
+        th.addEventListener('click', () => sortTable(table, i + 1));
+        headerRow.appendChild(th);
+      }
+      // build colgroup: one extra for row-number
+      // total table columns = maxCols (data columns) + 1 (row number)
+      // index 0 -> row-number, index 1 -> Kolom1, index 2 -> Kolom2, ...
+      const totalTableCols = maxCols + 1;
+      for(let ci = 0; ci < totalTableCols; ci++){
+        const col = document.createElement('col');
+        if(ci === 0){ col.style.width = '48px'; }
+        // make Kolom 2 and Kolom 18 wider if they exist
+        if(ci === 2){ col.style.width = '220px'; }
+        if(ci === 18){ col.style.width = '220px'; }
+        colgroup.appendChild(col);
+      }
+      table.appendChild(colgroup);
+      thead.appendChild(headerRow);
+
+      // Data rows start from row 1 (preserve original behavior) but filter by column 18 (index 17)
+      let visibleIndex = 0;
+      for (let i = 1; i < data.length; i++) {
+        if (!data[i] || data[i].length === 0) continue;
+
+        const val = parseNumberLocal(data[i][17]); // column 18
+        if (!(val > 0)) continue; // skip rows where column18 <= 0 or not numeric
+
+        const row = document.createElement('tr');
+
+        const tdRowNum = document.createElement('td');
+        tdRowNum.textContent = visibleIndex + 1;
+        tdRowNum.className = 'row-number';
+        row.appendChild(tdRowNum);
+
+        for (let j = 0; j < maxCols; j++) {
+          const cell = data[i][j];
+          const td = document.createElement('td');
+
+          if (typeof cell === 'number') {
+            td.textContent = formatNumber(cell);
+            td.classList.add('numeric');
+          } else if (cell !== null && cell !== undefined && !isNaN(parseNumberLocal(cell))) {
+            const num = parseNumberLocal(cell);
+            if (!isNaN(num)) {
+              td.textContent = formatNumber(num);
+              td.classList.add('numeric');
+            } else {
+              td.textContent = cell;
+            }
+          } else {
+            td.textContent = cell ?? '';
+          }
+          row.appendChild(td);
+        }
+        tbody.appendChild(row);
+        visibleIndex++;
+      }
+
+      table.appendChild(thead);
+      table.appendChild(tbody);
+
+      const container = document.getElementById('excel-data');
+      container.innerHTML = '';
+      container.appendChild(table);
+    }
+
+    function formatNumber(num) {
+      return num.toLocaleString('id-ID');
+    }
+
+    function sortTable(table, colIndex) {
+      const tbody = table.querySelector('tbody');
+      const rows = Array.from(tbody.rows);
+      const ths = table.querySelectorAll('th');
+
+      ths.forEach(th => th.classList.remove('sort-asc', 'sort-desc'));
+
+      if (currentSort.index === colIndex) {
+        currentSort.ascending = !currentSort.ascending;
+      } else {
+        currentSort.index = colIndex;
+        currentSort.ascending = true;
+      }
+
+      const ascending = currentSort.ascending;
+      const currentTh = ths[colIndex];
+      currentTh.classList.add(ascending ? 'sort-asc' : 'sort-desc');
+
+      rows.sort((a, b) => {
+        if (!a.cells[colIndex] || !b.cells[colIndex]) return 0;
+
+        const aText = a.cells[colIndex].textContent.replace(/\./g, '').trim();
+        const bText = b.cells[colIndex].textContent.replace(/\./g, '').trim();
+
+        const aNum = parseFloat(aText.replace(/,/g, '.'));
+        const bNum = parseFloat(bText.replace(/,/g, '.'));
+
+        if (!isNaN(aNum) && !isNaN(bNum) && aText !== '' && bText !== '') {
+          return ascending ? aNum - bNum : bNum - aNum;
+        } else {
+          return ascending ? aText.localeCompare(bText) : bText.localeCompare(aText);
+        }
+      });
+
+      rows.forEach(row => tbody.appendChild(row));
+
+      rows.forEach((row, idx) => { row.cells[0].textContent = idx + 1; });
+    }
+  </script>
+</body>
+
+</html>
